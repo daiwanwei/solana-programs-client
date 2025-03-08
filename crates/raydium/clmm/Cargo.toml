@@ -1,0 +1,32 @@
+[package]
+name                   = "raydium-clmm"
+description            = "Raydium CLMM"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "raydium_clmm"
+
+[features]
+
+[dependencies]
+borsh          = { workspace = true }
+solana-program = { workspace = true }
+
+anchor-trait        = { workspace = true }
+anchor-trait-derive = { workspace = true }
+
+[dev-dependencies]
+base64 = { workspace = true }
+
+[lints]
+workspace = true
