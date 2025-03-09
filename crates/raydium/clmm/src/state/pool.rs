@@ -9,7 +9,7 @@ use crate::{constants::REWARD_NUM, state::RewardInfo};
 ///
 /// PDA of `[POOL_SEED, config, token_mint_0, token_mint_1]`
 #[discriminator(account)]
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Default, Debug)]
 pub struct PoolState {
     /// Bump to identify PDA
     pub bump: [u8; 1],
@@ -97,6 +97,7 @@ pub struct PoolState {
     pub padding2: [u64; 32],
 }
 
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, PartialEq, Eq)]
 pub enum PoolStatusBitIndex {
     OpenPositionOrIncreaseLiquidity,
     DecreaseLiquidity,
@@ -105,7 +106,7 @@ pub enum PoolStatusBitIndex {
     Swap,
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug, PartialEq, Eq)]
 pub enum PoolStatusBitFlag {
     Enable,
     Disable,

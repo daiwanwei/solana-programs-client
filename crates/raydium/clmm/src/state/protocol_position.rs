@@ -1,11 +1,12 @@
 use anchor_trait::Discriminator;
 use anchor_trait_derive::discriminator;
+use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
 use crate::constants::REWARD_NUM;
 
 #[discriminator(account)]
-#[derive(Clone, Default, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Default, Debug)]
 pub struct ProtocolPositionState {
     /// Bump to identify PDA
     pub bump: u8,

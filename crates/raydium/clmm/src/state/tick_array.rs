@@ -1,11 +1,12 @@
 use anchor_trait::Discriminator;
 use anchor_trait_derive::discriminator;
+use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
 use crate::constants::{REWARD_NUM, TICK_ARRAY_SIZE_USIZE};
 
 #[discriminator(account)]
-#[derive(Clone, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct TickArrayState {
     pub pool_id: Pubkey,
     pub start_tick_index: i32,
@@ -17,7 +18,7 @@ pub struct TickArrayState {
     pub padding: [u8; 107],
 }
 
-#[derive(Clone, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct TickState {
     pub tick: i32,
     /// Amount of net liquidity added (subtracted) when tick is crossed from

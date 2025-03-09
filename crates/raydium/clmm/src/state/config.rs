@@ -1,10 +1,11 @@
 use anchor_trait::Discriminator;
 use anchor_trait_derive::discriminator;
+use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
 /// Holds the current owner of the factory
 #[discriminator(account)]
-#[derive(Clone, Default, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Default, Debug)]
 pub struct AmmConfig {
     /// Bump to identify PDA
     pub bump: u8,

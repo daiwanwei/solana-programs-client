@@ -6,7 +6,7 @@ use solana_program::pubkey::Pubkey;
 use crate::constants::REWARD_NUM;
 
 #[discriminator(account)]
-#[derive(Clone, Default, Debug)]
+#[derive(BorshSerialize, BorshDeserialize, Clone, Default, Debug)]
 pub struct PersonalPositionState {
     /// Bump to identify PDA
     pub bump: u8,
