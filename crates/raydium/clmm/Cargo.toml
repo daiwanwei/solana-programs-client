@@ -17,13 +17,21 @@ crate-type = ["cdylib", "lib"]
 name       = "raydium_clmm"
 
 [features]
+default      = ["enable-power"]
+enable-power = ["uint/enable-power"]
 
 [dependencies]
 borsh          = { workspace = true }
 solana-program = { workspace = true }
 
+snafu = { workspace = true }
+
 anchor-trait        = { workspace = true }
 anchor-trait-derive = { workspace = true }
+
+uint = { git = "https://github.com/raydium-io/parity-common", package = "uint", features = [
+  "enable-power",
+] }
 
 [dev-dependencies]
 base64 = { workspace = true }
