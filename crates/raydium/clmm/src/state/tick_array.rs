@@ -5,7 +5,7 @@ use solana_program::pubkey::Pubkey;
 use crate::constants::{REWARD_NUM, TICK_ARRAY_SIZE_USIZE};
 
 #[discriminator(account)]
-#[repr(packed)]
+#[derive(Clone, Debug)]
 pub struct TickArrayState {
     pub pool_id: Pubkey,
     pub start_tick_index: i32,
@@ -17,7 +17,7 @@ pub struct TickArrayState {
     pub padding: [u8; 107],
 }
 
-#[derive(Default, Debug)]
+#[derive(Clone, Debug)]
 pub struct TickState {
     pub tick: i32,
     /// Amount of net liquidity added (subtracted) when tick is crossed from

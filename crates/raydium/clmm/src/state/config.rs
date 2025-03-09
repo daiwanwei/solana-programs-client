@@ -4,7 +4,7 @@ use solana_program::pubkey::Pubkey;
 
 /// Holds the current owner of the factory
 #[discriminator(account)]
-#[derive(Default, Debug)]
+#[derive(Clone, Default, Debug)]
 pub struct AmmConfig {
     /// Bump to identify PDA
     pub bump: u8,
