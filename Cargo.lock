@@ -15,19 +15,35 @@ dependencies = [
 ]
 
 [[package]]
-name = "anchor-trait"
+name = "anchor-discriminator-derive"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=7aec7a8#7aec7a88a2e0be3cc1210837deb85c054d2fcf1f"
-
-[[package]]
-name = "anchor-trait-derive"
-version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=7aec7a8#7aec7a88a2e0be3cc1210837deb85c054d2fcf1f"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f73b120#f73b12091a98bac519b2dc50793d4057e5fef307"
 dependencies = [
  "proc-macro2",
  "quote",
  "sha2 0.10.8",
  "syn 2.0.99",
+]
+
+[[package]]
+name = "anchor-instructions-derive"
+version = "0.0.1"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f73b120#f73b12091a98bac519b2dc50793d4057e5fef307"
+dependencies = [
+ "convert_case",
+ "proc-macro2",
+ "quote",
+ "sha2 0.10.8",
+ "syn 2.0.99",
+]
+
+[[package]]
+name = "anchor-trait"
+version = "0.0.1"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f73b120#f73b12091a98bac519b2dc50793d4057e5fef307"
+dependencies = [
+ "borsh 1.5.5",
+ "convert_case",
 ]
 
 [[package]]
@@ -269,6 +285,15 @@ name = "constant_time_eq"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7c74b8349d32d297c9134b8c88677813a227df8f779daa29bfc29c183fe3dca6"
+
+[[package]]
+name = "convert_case"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ec182b0ca2f35d8fc196cf3404988fd8b8c739a4d270ff118a398feb0cbec1ca"
+dependencies = [
+ "unicode-segmentation",
+]
 
 [[package]]
 name = "cpufeatures"
@@ -749,8 +774,9 @@ dependencies = [
 name = "raydium-clmm"
 version = "0.0.1"
 dependencies = [
+ "anchor-discriminator-derive",
+ "anchor-instructions-derive",
  "anchor-trait",
- "anchor-trait-derive",
  "base64 0.22.1",
  "borsh 1.5.5",
  "snafu",
@@ -1801,6 +1827,12 @@ name = "unicode-ident"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5a5f39404a5da50712a4c1eecf25e90dd62b613502b7e925fd4e4d19b5c96512"
+
+[[package]]
+name = "unicode-segmentation"
+version = "1.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f6ccf251212114b54433ec949fd6a7841275f9ada20dddd2f29e9ceea4501493"
 
 [[package]]
 name = "version_check"

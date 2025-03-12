@@ -26,8 +26,9 @@ solana-program = { workspace = true }
 
 snafu = { workspace = true }
 
-anchor-trait        = { workspace = true }
-anchor-trait-derive = { workspace = true }
+anchor-trait                = { workspace = true }
+anchor-discriminator-derive = { workspace = true }
+anchor-instructions-derive  = { workspace = true }
 
 uint = { git = "https://github.com/raydium-io/parity-common", package = "uint", features = [
   "enable-power",

@@ -1,5 +1,4 @@
-use anchor_trait::Discriminator;
-use anchor_trait_derive::discriminator;
+use anchor_discriminator_derive::discriminator;
 use borsh::{BorshDeserialize, BorshSerialize};
 use solana_program::pubkey::Pubkey;
 
@@ -47,6 +46,7 @@ pub struct SwapEvent {
 
 #[cfg(test)]
 mod tests {
+    use anchor_trait::Discriminator;
     use base64::{engine::general_purpose::STANDARD, Engine as _};
 
     use super::*;

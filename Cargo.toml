@@ -29,8 +29,13 @@ solana-program = "2"
 
 snafu = "0.8"
 
-anchor-trait        = { package = "anchor-trait", git = "https://github.com/daiwanwei/solana-common", rev = "7aec7a8" }
-anchor-trait-derive = { package = "anchor-trait-derive", git = "https://github.com/daiwanwei/solana-common", rev = "7aec7a8" }
+anchor-trait                = { package = "anchor-trait", git = "https://github.com/daiwanwei/solana-common", rev = "f73b120" }
+anchor-instructions-derive  = { package = "anchor-instructions-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f73b120" }
+anchor-discriminator-derive = { package = "anchor-discriminator-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f73b120" }
+
+# anchor-trait                = { package = "anchor-trait", path = "../solana-common/crates/anchor-trait" }
+# anchor-discriminator-derive = { package = "anchor-discriminator-derive", path = "../solana-common/crates/anchor-derive/discriminator" }
+# anchor-instructions-derive  = { package = "anchor-instructions-derive", path = "../solana-common/crates/anchor-derive/instructions" }
 
 raydium-clmm = { path = "crates/raydium/clmm" }
 

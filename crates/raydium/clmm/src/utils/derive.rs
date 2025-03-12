@@ -148,5 +148,19 @@ mod tests {
             .0,
             protocol_position
         );
+
+        let amm_configs = vec![
+            Pubkey::from_str("9iFER3bpjf1PTTCQCfTRu17EJgvsxo9pVyA9QWwEuX4x").unwrap(),
+            Pubkey::from_str("3XCQJQryqpDvvZBfGxR7CLAw5dpGJ9aa7kt1jRLdyxuZ").unwrap(),
+            Pubkey::from_str("HfERMT5DRA6C1TAqecrJQFpmkf3wsWTMncqnj3RDg5aw").unwrap(),
+            Pubkey::from_str("E64NGkDLLCdQ2yFNPcavaKptrEgmiQaNykUuLC1Qgwyp").unwrap(),
+            Pubkey::from_str("A1BBtTYJd4i3xU8D6Tc2FzU6ZN4oXZWXKZnCxwbHXr8x").unwrap(),
+        ];
+
+        for amm_config in amm_configs {
+            let (pool_state, _) =
+                derive_pool_state_pubkey(amm_config, token_mint_0, token_mint_1, None);
+            println!("pool_state: {}", pool_state);
+        }
     }
 }
