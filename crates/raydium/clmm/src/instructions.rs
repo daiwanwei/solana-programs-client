@@ -1,11 +1,9 @@
 use anchor_instructions_derive::Instructions;
 use borsh::{BorshDeserialize, BorshSerialize};
+use solana_program::pubkey::Pubkey;
 
 #[derive(Instructions)]
 pub enum ClmmInstruction {
-    InitializePool {
-        bump: u8,
-    },
     Swap {
         amount: u64,
         other_amount_threshold: u64,
@@ -22,6 +20,103 @@ pub enum ClmmInstruction {
         amount_in: u64,
         amount_out_minimum: u64,
     },
+
+    IncreaseLiquidity {
+        liquidity: u128,
+        amount_0_max: u64,
+        amount_1_max: u64,
+    },
+    IncreaseLiquidityV2 {
+        liquidity: u128,
+        amount_0_max: u64,
+        amount_1_max: u64,
+        base_flag: Option<bool>,
+    },
+    DecreaseLiquidity {
+        liquidity: u128,
+        amount_0_min: u64,
+        amount_1_min: u64,
+    },
+    DecreaseLiquidityV2 {
+        liquidity: u128,
+        amount_0_min: u64,
+        amount_1_min: u64,
+    },
+
+    OpenPosition {
+        tick_lower_index: i32,
+        tick_upper_index: i32,
+        tick_array_lower_start_index: i32,
+        tick_array_upper_start_index: i32,
+        liquidity: u128,
+        amount_0_max: u64,
+        amount_1_max: u64,
+    },
+    OpenPositionV2 {
+        tick_lower_index: i32,
+        tick_upper_index: i32,
+        tick_array_lower_start_index: i32,
+        tick_array_upper_start_index: i32,
+        liquidity: u128,
+        amount_0_max: u64,
+        amount_1_max: u64,
+        with_metadata: bool,
+        base_flag: Option<bool>,
+    },
+    OpenPositionWithToken22Nft {
+        tick_lower_index: i32,
+        tick_upper_index: i32,
+        tick_array_lower_start_index: i32,
+        tick_array_upper_start_index: i32,
+        liquidity: u128,
+        amount_0_max: u64,
+        amount_1_max: u64,
+        with_metadata: bool,
+        base_flag: Option<bool>,
+    },
+    ClosePosition,
+
+    CollectProtocolFee {
+        amount_0_requested: u64,
+        amount_1_requested: u64,
+    },
+    CollectFundFee {
+        amount_0_requested: u64,
+        amount_1_requested: u64,
+    },
+
+    TransferRewardOwner {
+        new_owner: Pubkey,
+    },
+    InitializeReward {
+        param: InitializeRewardParam,
+    },
+    CollectRemainingRewards {
+        reward_index: u8,
+    },
+    UpdateRewardInfos,
+    SetRewardParams {
+        reward_index: u8,
+        emissions_per_second_x64: u128,
+        open_time: u64,
+        end_time: u64,
+    },
+
+    CreateOperationAccount,
+    UpdateOperationAccount {
+        param: u8,
+        keys: Vec<Pubkey>,
+    },
+}
+
+#[derive(BorshSerialize, BorshDeserialize, Debug, Clone)]
+pub struct InitializeRewardParam {
+    pub reward_index: u8,
+    pub open_time: u64,
+    pub end_time: u64,
+    pub emissions_per_second_x64: u128,
+    pub reward_mint: Pubkey,
+    pub authority: Pubkey,
 }
 
 #[cfg(test)]
