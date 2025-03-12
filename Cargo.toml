@@ -14,7 +14,7 @@ publish      = false
 
 [workspace]
 resolver = "2"
-members  = ["crates/raydium/clmm"]
+members  = ["crates/raydium/clmm", "crates/orca/whirlpools"]
 
 [workspace.dependencies]
 # serialization / deserialization
@@ -33,11 +33,8 @@ anchor-trait                = { package = "anchor-trait", git = "https://github.
 anchor-instructions-derive  = { package = "anchor-instructions-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f73b120" }
 anchor-discriminator-derive = { package = "anchor-discriminator-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f73b120" }
 
-# anchor-trait                = { package = "anchor-trait", path = "../solana-common/crates/anchor-trait" }
-# anchor-discriminator-derive = { package = "anchor-discriminator-derive", path = "../solana-common/crates/anchor-derive/discriminator" }
-# anchor-instructions-derive  = { package = "anchor-instructions-derive", path = "../solana-common/crates/anchor-derive/instructions" }
-
-raydium-clmm = { path = "crates/raydium/clmm" }
+raydium-clmm    = { path = "crates/raydium/clmm" }
+orca-whirlpools = { path = "crates/orca/whirlpools" }
 
 [workspace.lints.rust]
 async_fn_in_trait = "allow"
