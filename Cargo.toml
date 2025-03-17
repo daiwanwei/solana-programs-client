@@ -29,9 +29,9 @@ solana-program = "2"
 
 snafu = "0.8"
 
-anchor-trait                = { package = "anchor-trait", git = "https://github.com/daiwanwei/solana-common", rev = "f73b120" }
-anchor-instructions-derive  = { package = "anchor-instructions-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f73b120" }
-anchor-discriminator-derive = { package = "anchor-discriminator-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f73b120" }
+anchor-trait                = { package = "anchor-trait", git = "https://github.com/daiwanwei/solana-common", rev = "4b68629" }
+anchor-instructions-derive  = { package = "anchor-instructions-derive", git = "https://github.com/daiwanwei/solana-common", rev = "4b68629" }
+anchor-discriminator-derive = { package = "anchor-discriminator-derive", git = "https://github.com/daiwanwei/solana-common", rev = "4b68629" }
 
 raydium-clmm    = { path = "crates/raydium/clmm" }
 orca-whirlpools = { path = "crates/orca/whirlpools" }

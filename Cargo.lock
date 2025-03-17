@@ -17,7 +17,7 @@ dependencies = [
 [[package]]
 name = "anchor-discriminator-derive"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=f73b120#f73b12091a98bac519b2dc50793d4057e5fef307"
+source = "git+https://github.com/daiwanwei/solana-common?rev=4b68629#4b686299e61b3821e6676ce447934f1df7ac8017"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -28,7 +28,7 @@ dependencies = [
 [[package]]
 name = "anchor-instructions-derive"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=f73b120#f73b12091a98bac519b2dc50793d4057e5fef307"
+source = "git+https://github.com/daiwanwei/solana-common?rev=4b68629#4b686299e61b3821e6676ce447934f1df7ac8017"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -40,10 +40,9 @@ dependencies = [
 [[package]]
 name = "anchor-trait"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=f73b120#f73b12091a98bac519b2dc50793d4057e5fef307"
+source = "git+https://github.com/daiwanwei/solana-common?rev=4b68629#4b686299e61b3821e6676ce447934f1df7ac8017"
 dependencies = [
  "borsh 1.5.5",
- "convert_case",
 ]
 
 [[package]]
