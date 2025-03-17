@@ -1,4 +1,4 @@
-use super::{big_num::U128, U256};
+use crate::libraries::{big_num::U128, U256};
 
 pub trait UnsafeMathTrait {
     /// Returns ceil (x / y)

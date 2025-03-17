@@ -1,4 +1,7 @@
-use super::{fixed_point_64, full_math::MulDiv, unsafe_math::UnsafeMathTrait, U256};
+use crate::{
+    libraries::{fixed_point_64, U256},
+    math::{full_math::MulDiv, unsafe_math::UnsafeMathTrait},
+};
 
 /// Gets the next sqrt price √P' given a delta of token_0
 ///

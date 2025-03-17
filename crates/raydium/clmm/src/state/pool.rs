@@ -1,8 +1,14 @@
 use anchor_discriminator_derive::discriminator;
 use borsh::{BorshDeserialize, BorshSerialize};
+use snafu::{ResultExt, Snafu};
 use solana_program::pubkey::Pubkey;
 
-use crate::{constants::REWARD_NUM, state::RewardInfo};
+use crate::{
+    constants::REWARD_NUM,
+    libraries::big_num::U1024,
+    math::{tick, tickarray_bitmap},
+    state::{RewardInfo, TickArrayBitmapExtension, TickArrayBitmapExtensionError},
+};
 
 /// The pool state
 ///
@@ -96,6 +102,55 @@ pub struct PoolState {
     pub padding2: [u64; 32],
 }
 
+impl PoolState {
+    pub fn next_initialized_tick_array_start_index(
+        &self,
+        tickarray_bitmap_extension: &Option<TickArrayBitmapExtension>,
+        mut last_tick_array_start_index: i32,
+        zero_for_one: bool,
+    ) -> Result<Option<i32>> {
+        last_tick_array_start_index =
+            tick::get_array_start_index(last_tick_array_start_index, self.tick_spacing);
+
+        loop {
+            let (is_found, start_index) = tickarray_bitmap::next_initialized_tick_array_start_index(
+                U1024(self.tick_array_bitmap),
+                last_tick_array_start_index,
+                self.tick_spacing,
+                zero_for_one,
+            );
+            if is_found {
+                return Ok(Some(start_index));
+            }
+            last_tick_array_start_index = start_index;
+
+            if tickarray_bitmap_extension.is_none() {
+                return Err(PoolStateError::MissingTickArrayBitmapExtensionAccount);
+            }
+
+            let (is_found, start_index) = tickarray_bitmap_extension
+                .as_ref()
+                .unwrap()
+                .next_initialized_tick_array_from_one_bitmap(
+                    last_tick_array_start_index,
+                    self.tick_spacing,
+                    zero_for_one,
+                )
+                .context(TickArrayBitmapExtensionSnafu)?;
+            if is_found {
+                return Ok(Some(start_index));
+            }
+            last_tick_array_start_index = start_index;
+
+            if last_tick_array_start_index < tick::MIN_TICK
+                || last_tick_array_start_index > tick::MAX_TICK
+            {
+                return Ok(None);
+            }
+        }
+    }
+}
+
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, PartialEq, Eq)]
 pub enum PoolStatusBitIndex {
     OpenPositionOrIncreaseLiquidity,
@@ -110,6 +165,18 @@ pub enum PoolStatusBitFlag {
     Enable,
     Disable,
 }
+
+#[derive(Debug, Snafu)]
+#[snafu(visibility(pub))]
+pub enum PoolStateError {
+    #[snafu(display("Missing tick array bitmap extension account"))]
+    MissingTickArrayBitmapExtensionAccount,
+
+    #[snafu(display("Tick array start tick index out of range limit"))]
+    TickArrayBitmapExtension { source: TickArrayBitmapExtensionError },
+}
+
+pub type Result<T> = std::result::Result<T, PoolStateError>;
 
 #[cfg(test)]
 mod tests {

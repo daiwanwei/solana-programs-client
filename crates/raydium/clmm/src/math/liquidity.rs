@@ -1,9 +1,37 @@
 use snafu::{ResultExt, Snafu};
 
 use crate::{
-    libraries::{big_num::U256, fixed_point_64, full_math::MulDiv, unsafe_math::UnsafeMathTrait},
-    math::tick::{self, TickError},
+    libraries::{big_num::U256, fixed_point_64},
+    math::{
+        full_math::MulDiv,
+        tick::{self, TickError},
+        unsafe_math::UnsafeMathTrait,
+    },
 };
+
+/// Add a signed liquidity delta to liquidity and revert if it overflows or
+/// underflows
+///
+/// # Arguments
+///
+/// * `x` - The liquidity (L) before change
+/// * `y` - The delta (ΔL) by which liquidity should be changed
+pub fn add_delta(x: u128, y: i128) -> Result<u128> {
+    let z: u128;
+    if y < 0 {
+        z = x - u128::try_from(-y).unwrap();
+        if z > x {
+            return Err(LiquidityError::LiquiditySubValue);
+        }
+    } else {
+        z = x + u128::try_from(y).unwrap();
+        if z < x {
+            return Err(LiquidityError::LiquidityAddValue);
+        }
+    }
+
+    Ok(z)
+}
 
 /// Gets the delta amount_0 for given liquidity and price range
 ///
@@ -166,6 +194,12 @@ pub fn get_delta_amounts_signed(
 pub enum LiquidityError {
     #[snafu(display("Max token overflow"))]
     MaxTokenOverflow,
+
+    #[snafu(display("Liquidity add value error"))]
+    LiquidityAddValue,
+
+    #[snafu(display("Liquidity sub value error"))]
+    LiquiditySubValue,
 
     #[snafu(display("Tick error: {}", source))]
     Tick { source: TickError },

@@ -208,6 +208,21 @@ pub fn get_tick_at_sqrt_price(sqrt_price_x64: u128) -> Result<i32, TickError> {
     })
 }
 
+/// Common checks for a valid tick input.
+/// A tick is valid if it lies within tick boundaries
+pub fn check_is_out_of_boundary(tick: i32) -> bool { tick < MIN_TICK || tick > MAX_TICK }
+
+pub fn check_is_valid_start_index(tick_index: i32, tick_spacing: u16) -> bool {
+    if check_is_out_of_boundary(tick_index) {
+        if tick_index > MAX_TICK {
+            return false;
+        }
+        let min_start_index = get_array_start_index(MIN_TICK, tick_spacing);
+        return tick_index == min_start_index;
+    }
+    tick_index % tick_count(tick_spacing) == 0
+}
+
 #[derive(Debug, Snafu)]
 #[snafu(visibility(pub))]
 pub enum TickError {
