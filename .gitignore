@@ -21,3 +21,6 @@ result
 dist/
 
 .DS_Store
+
+# proptest
+proptest-regressions/

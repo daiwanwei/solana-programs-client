@@ -4,18 +4,14 @@ use snafu::{ResultExt, Snafu};
 
 use crate::{
     constants::FEE_RATE_DENOMINATOR_VALUE,
-    math::{
-        full_math::MulDiv,
-        liquidity::{self, add_delta, get_delta_amount_0_unsigned, get_delta_amount_1_unsigned},
-        sqrt_price, tick,
-    },
+    math::{full_math::MulDiv, liquidity, sqrt_price, tick},
     state::{
         PoolState, PoolStateError, TickArrayBitmapExtension, TickArrayState, TickState,
         TickStateError,
     },
 };
 
-pub const MAX_SWAP_STEP_COUNT: u32 = 10;
+pub const MAX_SWAP_STEP_COUNT: u32 = 88;
 
 /// Result of a swap step
 #[derive(Default, Debug)]
@@ -104,42 +100,42 @@ pub fn compute_swap_step(
     if zero_for_one {
         // if max is reached for exact input case, entire amount_in is needed
         if !(max && is_base_input) {
-            swap_step.amount_in = get_delta_amount_0_unsigned(
+            swap_step.amount_in = liquidity::get_delta_amount_0_unsigned(
                 swap_step.sqrt_price_next_x64,
                 sqrt_price_current_x64,
                 liquidity,
                 true,
             )
-            .context(LiquiditySnafu)?;
+            .unwrap();
         };
         // if max is reached for exact output case, entire amount_out is needed
         if !(max && !is_base_input) {
-            swap_step.amount_out = get_delta_amount_1_unsigned(
+            swap_step.amount_out = liquidity::get_delta_amount_1_unsigned(
                 swap_step.sqrt_price_next_x64,
                 sqrt_price_current_x64,
                 liquidity,
                 false,
             )
-            .context(LiquiditySnafu)?;
+            .unwrap();
         };
     } else {
         if !(max && is_base_input) {
-            swap_step.amount_in = get_delta_amount_1_unsigned(
+            swap_step.amount_in = liquidity::get_delta_amount_1_unsigned(
                 sqrt_price_current_x64,
                 swap_step.sqrt_price_next_x64,
                 liquidity,
                 true,
             )
-            .context(LiquiditySnafu)?;
+            .unwrap();
         };
         if !(max && !is_base_input) {
-            swap_step.amount_out = get_delta_amount_0_unsigned(
+            swap_step.amount_out = liquidity::get_delta_amount_0_unsigned(
                 sqrt_price_current_x64,
                 swap_step.sqrt_price_next_x64,
                 liquidity,
                 false,
             )
-            .context(LiquiditySnafu)?;
+            .unwrap();
         };
     }
 
@@ -165,12 +161,14 @@ pub fn compute_swap_step(
     Ok(swap_step)
 }
 
+/// Computes the result of swapping some amount in, or amount out, given the
+/// parameters of the swap
+
 /// Pre calcumate amount_in or amount_out for the specified price range
 /// The amount maybe overflow of u64 due to the `sqrt_price_target_x64` maybe
 /// unreasonable. Therefore, this situation needs to be handled in
 /// `compute_swap_step` to recalculate the price that can be reached based on
 /// the amount.
-
 fn calculate_amount_in_range(
     sqrt_price_current_x64: u128,
     sqrt_price_target_x64: u128,
@@ -180,14 +178,14 @@ fn calculate_amount_in_range(
 ) -> Result<Option<u64>> {
     if is_base_input {
         let result = if zero_for_one {
-            get_delta_amount_0_unsigned(
+            liquidity::get_delta_amount_0_unsigned(
                 sqrt_price_target_x64,
                 sqrt_price_current_x64,
                 liquidity,
                 true,
             )
         } else {
-            get_delta_amount_1_unsigned(
+            liquidity::get_delta_amount_1_unsigned(
                 sqrt_price_current_x64,
                 sqrt_price_target_x64,
                 liquidity,
@@ -198,14 +196,14 @@ fn calculate_amount_in_range(
         Ok(Some(result))
     } else {
         let result = if zero_for_one {
-            get_delta_amount_1_unsigned(
+            liquidity::get_delta_amount_1_unsigned(
                 sqrt_price_target_x64,
                 sqrt_price_current_x64,
                 liquidity,
                 false,
             )
         } else {
-            get_delta_amount_0_unsigned(
+            liquidity::get_delta_amount_0_unsigned(
                 sqrt_price_current_x64,
                 sqrt_price_target_x64,
                 liquidity,
@@ -217,7 +215,7 @@ fn calculate_amount_in_range(
     }
 }
 
-pub fn compute_swap_by_specified_amount(
+pub fn compute_swap(
     zero_for_one: bool,
     is_base_input: bool,
     is_pool_current_tick_array: bool,
@@ -228,7 +226,7 @@ pub fn compute_swap_by_specified_amount(
     pool_state: &PoolState,
     tickarray_bitmap_extension: &TickArrayBitmapExtension,
     tick_arrays: &mut VecDeque<TickArrayState>,
-) -> Result<(u64, VecDeque<i32>)> {
+) -> Result<(SwapState, VecDeque<i32>)> {
     // Input validation
     if amount_specified == 0 {
         return Err(SwapError::AmountSpecifiedZero);
@@ -339,7 +337,7 @@ pub fn compute_swap_by_specified_amount(
         update_state_from_swap(
             &mut state,
             &swap_result,
-            &step,
+            &mut step,
             is_base_input,
             zero_for_one,
             &next_tick,
@@ -348,7 +346,7 @@ pub fn compute_swap_by_specified_amount(
         loop_count += 1;
     }
 
-    Ok((state.amount_calculated, tick_array_indices))
+    Ok((state, tick_array_indices))
 }
 
 pub fn compute_swap_by_specified_sqrt_price(
@@ -359,9 +357,18 @@ pub fn compute_swap_by_specified_sqrt_price(
     pool_state: &PoolState,
     tickarray_bitmap_extension: &TickArrayBitmapExtension,
     tick_arrays: &mut VecDeque<TickArrayState>,
-) -> Result<(u64, VecDeque<i32>)> {
+) -> Result<(SwapState, VecDeque<i32>)> {
     if sqrt_price == pool_state.sqrt_price_x64 {
-        return Ok((0, VecDeque::new()));
+        return Ok((
+            SwapState {
+                amount_specified_remaining: 0,
+                amount_calculated: 0,
+                sqrt_price_x64: pool_state.sqrt_price_x64,
+                tick: pool_state.tick_current,
+                liquidity: pool_state.liquidity,
+            },
+            VecDeque::new(),
+        ));
     }
 
     const IS_BASE_INPUT: bool = true;
@@ -408,7 +415,6 @@ pub fn compute_swap_by_specified_sqrt_price(
         if loop_count == MAX_SWAP_STEP_COUNT {
             return Err(SwapError::LoopCountLimit);
         }
-
         // Process current step
         let mut step =
             StepComputations { sqrt_price_start_x64: state.sqrt_price_x64, ..Default::default() };
@@ -442,7 +448,6 @@ pub fn compute_swap_by_specified_sqrt_price(
 
         let target_price =
             calculate_target_price(zero_for_one, step.sqrt_price_next_x64, sqrt_price);
-
         // Execute swap step and update state
         let swap_result = compute_swap_step(
             state.sqrt_price_x64,
@@ -453,18 +458,20 @@ pub fn compute_swap_by_specified_sqrt_price(
             IS_BASE_INPUT,
             zero_for_one,
         )?;
+        println!("swap_result: {:?}", swap_result);
 
         update_state_from_swap(
             &mut state,
             &swap_result,
-            &step,
+            &mut step,
             IS_BASE_INPUT,
             zero_for_one,
             &next_tick,
         )?;
+        println!("state: {:?}", state);
     }
 
-    Ok((state.amount_calculated, tick_array_indices))
+    Ok((state, tick_array_indices))
 }
 
 // Helper functions to break down the complexity
@@ -528,12 +535,15 @@ fn calculate_target_price(zero_for_one: bool, next_price: u128, limit_price: u12
 fn update_state_from_swap(
     state: &mut SwapState,
     swap_result: &SwapStep,
-    step: &StepComputations,
+    step: &mut StepComputations,
     is_base_input: bool,
     zero_for_one: bool,
     next_tick: &TickState,
 ) -> Result<()> {
     state.sqrt_price_x64 = swap_result.sqrt_price_next_x64;
+    step.amount_in = swap_result.amount_in;
+    step.amount_out = swap_result.amount_out;
+    step.fee_amount = swap_result.fee_amount;
 
     // Update amounts
     if is_base_input {
@@ -559,7 +569,8 @@ fn update_state_from_swap(
         if step.initialized {
             let liquidity_net =
                 if zero_for_one { next_tick.liquidity_net.neg() } else { next_tick.liquidity_net };
-            state.liquidity = add_delta(state.liquidity, liquidity_net).context(LiquiditySnafu)?;
+            state.liquidity =
+                liquidity::add_delta(state.liquidity, liquidity_net).context(LiquiditySnafu)?;
         }
         state.tick = if zero_for_one { step.tick_next - 1 } else { step.tick_next };
     } else if state.sqrt_price_x64 != step.sqrt_price_start_x64 {
@@ -584,6 +595,7 @@ pub struct SwapState {
     // the current liquidity in range
     pub liquidity: u128,
 }
+
 #[derive(Default)]
 struct StepComputations {
     // the price at the beginning of the step

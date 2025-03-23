@@ -36,7 +36,7 @@ impl TickArrayBitmapExtension {
         &self,
         tick_index: i32,
         tick_spacing: u16,
-    ) -> Result<(usize, tickarray_bitmap::TickArryBitmap)> {
+    ) -> TickArrayBitmapResult<(usize, tickarray_bitmap::TickArryBitmap)> {
         let offset = tickarray_bitmap::get_bitmap_offset(tick_index, tick_spacing)
             .context(TickArrayBitmapSnafu)?;
         if tick_index < 0 {
@@ -54,7 +54,7 @@ impl TickArrayBitmapExtension {
         last_tick_array_start_index: i32,
         tick_spacing: u16,
         zero_for_one: bool,
-    ) -> Result<(bool, i32)> {
+    ) -> TickArrayBitmapResult<(bool, i32)> {
         let multiplier = tick::tick_count(tick_spacing);
         let next_tick_array_start_index = if zero_for_one {
             last_tick_array_start_index - multiplier
@@ -91,4 +91,4 @@ pub enum TickArrayBitmapExtensionError {
     TickArrayBitmap { source: tickarray_bitmap::TickArrayBitmapError },
 }
 
-pub type Result<T> = std::result::Result<T, TickArrayBitmapExtensionError>;
+pub type TickArrayBitmapResult<T> = Result<T, TickArrayBitmapExtensionError>;

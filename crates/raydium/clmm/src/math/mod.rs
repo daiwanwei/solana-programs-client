@@ -1,7 +1,9 @@
+pub mod fee;
 pub mod full_math;
 pub mod liquidity;
 pub mod sqrt_price;
-pub mod swap;
+pub mod swap_v1;
+pub mod swap_v2;
 pub mod tick;
 pub mod tickarray_bitmap;
 pub mod unsafe_math;

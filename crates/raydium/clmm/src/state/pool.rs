@@ -108,7 +108,7 @@ impl PoolState {
         tickarray_bitmap_extension: &Option<TickArrayBitmapExtension>,
         mut last_tick_array_start_index: i32,
         zero_for_one: bool,
-    ) -> Result<Option<i32>> {
+    ) -> PoolResult<Option<i32>> {
         last_tick_array_start_index =
             tick::get_array_start_index(last_tick_array_start_index, self.tick_spacing);
 
@@ -176,7 +176,7 @@ pub enum PoolStateError {
     TickArrayBitmapExtension { source: TickArrayBitmapExtensionError },
 }
 
-pub type Result<T> = std::result::Result<T, PoolStateError>;
+pub type PoolResult<T> = Result<T, PoolStateError>;
 
 #[cfg(test)]
 mod tests {
