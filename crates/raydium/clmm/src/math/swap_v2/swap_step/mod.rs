@@ -1,4 +1,4 @@
-use snafu::{ResultExt, Snafu};
+use snafu::{OptionExt, ResultExt, Snafu};
 
 use crate::math::{
     fee::{calculate_amount_without_fee, calculate_fee},
@@ -50,14 +50,16 @@ pub fn compute_swap_step_by_specified_amount_in(
     // In exact input case, amount_remaining is positive
     // TODO: handle overflow
     let amount_remaining_without_fee =
-        calculate_amount_without_fee(amount_remaining, fee_rate, false).unwrap();
+        calculate_amount_without_fee(amount_remaining, fee_rate, false)
+            .context(CalculateFeeOverflowSnafu)?;
 
     if amount_remaining_without_fee == 0 {
         println!("amount_remaining_without_fee == 0");
-        let fee = calculate_fee(amount_remaining, fee_rate, true).unwrap();
+        let fee =
+            calculate_fee(amount_remaining, fee_rate, true).context(CalculateFeeOverflowSnafu)?;
         return Ok(SwapStep {
             sqrt_price_next_x64: sqrt_price_target_x64,
-            amount_in: amount_remaining.checked_sub(fee).unwrap(),
+            amount_in: amount_remaining.checked_sub(fee).context(MathOverflowSnafu)?,
             amount_out: 0,
             fee_amount: fee,
         });
@@ -71,14 +73,15 @@ pub fn compute_swap_step_by_specified_amount_in(
         zero_for_one,
         true,
     )?
-    .unwrap();
+    .context(CalculateAmountInRangeOverflowSnafu)?;
 
     let (sqrt_price_next_x64, amount_in, fee_amount) =
         if amount_remaining_without_fee >= amount_in_to_target {
             (
                 sqrt_price_target_x64,
                 amount_in_to_target,
-                calculate_fee(amount_in_to_target, fee_rate, true).unwrap(),
+                calculate_fee(amount_in_to_target, fee_rate, true)
+                    .context(CalculateFeeOverflowSnafu)?,
             )
         } else {
             (
@@ -89,7 +92,9 @@ pub fn compute_swap_step_by_specified_amount_in(
                     zero_for_one,
                 ),
                 amount_remaining_without_fee,
-                u64::from(amount_remaining).checked_sub(amount_remaining_without_fee).unwrap(),
+                u64::from(amount_remaining)
+                    .checked_sub(amount_remaining_without_fee)
+                    .context(MathOverflowSnafu)?,
             )
         };
 
@@ -99,9 +104,8 @@ pub fn compute_swap_step_by_specified_amount_in(
         liquidity,
         zero_for_one,
         false,
-    )
-    .unwrap()
-    .unwrap();
+    )?
+    .context(CalculateAmountInRangeOverflowSnafu)?;
 
     let swap_step = SwapStep { amount_in, amount_out, sqrt_price_next_x64, fee_amount };
 
@@ -124,7 +128,7 @@ pub fn compute_swap_step_by_specified_amount_out(
         zero_for_one,
         false,
     )?
-    .unwrap();
+    .context(CalculateAmountInRangeOverflowSnafu)?;
 
     // For exact output case, cap the output amount to not exceed the remaining
     // output amount
@@ -148,11 +152,10 @@ pub fn compute_swap_step_by_specified_amount_out(
         liquidity,
         zero_for_one,
         true,
-    )
-    .unwrap()
-    .unwrap();
+    )?
+    .context(CalculateAmountInRangeOverflowSnafu)?;
 
-    let fee_amount = calculate_fee(amount_in, fee_rate, true).unwrap();
+    let fee_amount = calculate_fee(amount_in, fee_rate, true).context(CalculateFeeOverflowSnafu)?;
 
     let swap_step = SwapStep { amount_in, amount_out, sqrt_price_next_x64, fee_amount };
 
@@ -230,6 +233,15 @@ pub enum SwapStepError {
 
     #[snafu(display("Liquidity error: {}", source))]
     Liquidity { source: liquidity::LiquidityError },
+
+    #[snafu(display("calculate_fee overflow"))]
+    CalculateFeeOverflow,
+
+    #[snafu(display("math overflow"))]
+    MathOverflow,
+
+    #[snafu(display("calculate_amount_in_range overflow"))]
+    CalculateAmountInRangeOverflow,
 }
 
 pub type Result<T> = std::result::Result<T, SwapStepError>;
@@ -265,7 +277,7 @@ mod swap_math_test {
                 fee_rate,
                 is_base_input,
                 zero_for_one,
-            ).unwrap();
+            ).expect("compute_swap_step failed");
 
 
             let amount_in = swap_step.amount_in;

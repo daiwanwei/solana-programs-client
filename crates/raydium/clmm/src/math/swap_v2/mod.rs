@@ -2,7 +2,7 @@ pub mod swap_step;
 
 use std::{collections::VecDeque, ops::Neg};
 
-use snafu::{ResultExt, Snafu};
+use snafu::{OptionExt, ResultExt, Snafu};
 
 use crate::{
     math::{liquidity, tick},
@@ -13,6 +13,154 @@ use crate::{
 };
 
 pub const MAX_SWAP_STEP_COUNT: u32 = 88;
+
+pub fn compute_swap(
+    zero_for_one: bool,
+    is_base_input: bool,
+    is_pool_current_tick_array: bool,
+    fee: u32,
+    amount_specified: u64,
+    current_vaild_tick_array_start_index: i32,
+    sqrt_price_limit_x64: u128,
+    pool_state: &PoolState,
+    tickarray_bitmap_extension: &TickArrayBitmapExtension,
+    tick_arrays: &mut VecDeque<TickArrayState>,
+) -> Result<(SwapState, VecDeque<i32>)> {
+    // Input validation
+    if amount_specified == 0 {
+        return Err(SwapError::AmountSpecifiedZero);
+    }
+
+    // Set price limit
+    let sqrt_price_limit_x64 = if sqrt_price_limit_x64 == 0 {
+        if zero_for_one {
+            tick::MIN_SQRT_PRICE_X64 + 1
+        } else {
+            tick::MAX_SQRT_PRICE_X64 - 1
+        }
+    } else {
+        sqrt_price_limit_x64
+    };
+
+    // Validate price limits
+    match zero_for_one {
+        true if sqrt_price_limit_x64 < tick::MIN_SQRT_PRICE_X64 => {
+            return Err(SwapError::SqrtPriceLimitX64TooSmall)
+        }
+        true if sqrt_price_limit_x64 >= pool_state.sqrt_price_x64 => {
+            return Err(SwapError::SqrtPriceLimitX64TooLarge)
+        }
+        false if sqrt_price_limit_x64 > tick::MAX_SQRT_PRICE_X64 => {
+            return Err(SwapError::SqrtPriceLimitX64TooLarge)
+        }
+        false if sqrt_price_limit_x64 <= pool_state.sqrt_price_x64 => {
+            return Err(SwapError::SqrtPriceLimitX64TooSmall)
+        }
+        _ => {}
+    }
+
+    // Initialize state
+    let mut tick_match_current_tick_array = is_pool_current_tick_array;
+    // let mut state = SwapState {
+    //     amount_specified_remaining: amount_specified,
+    //     amount_calculated: 0,
+    //     sqrt_price_x64: pool_state.sqrt_price_x64,
+    //     tick: pool_state.tick_current,
+    //     liquidity: pool_state.liquidity,
+    // };
+
+    let mut cache = SwapCache {
+        sqrt_price_x64: pool_state.sqrt_price_x64,
+        tick: pool_state.tick_current,
+        liquidity: pool_state.liquidity,
+        initialized: true,
+        amount_in: 0,
+        amount_out: 0,
+        fee_amount: 0,
+        remaining_amount: amount_specified,
+        amount_calculated: 0,
+    };
+
+    // Setup initial tick array
+    let mut tick_array_current = tick_arrays.pop_front().ok_or(SwapError::NoTickArrayAvailable)?;
+    if tick_array_current.start_tick_index != current_vaild_tick_array_start_index {
+        return Err(SwapError::TickArrayStartTickIndexDoesNotMatch);
+    }
+
+    let mut tick_array_indices = VecDeque::new();
+    tick_array_indices.push_back(tick_array_current.start_tick_index);
+
+    // Main swap loop - continue until target price is reached
+    for loop_count in 0..MAX_SWAP_STEP_COUNT + 1 {
+        if cache.sqrt_price_x64 == sqrt_price_limit_x64
+            || cache.tick.clamp(tick::MIN_TICK, tick::MAX_TICK) != cache.tick
+        {
+            break;
+        }
+        if loop_count == MAX_SWAP_STEP_COUNT {
+            return Err(SwapError::LoopCountLimit);
+        }
+
+        // Get and process next tick
+        let mut next_tick_state = process_next_tick(
+            &mut tick_array_current,
+            &mut tick_match_current_tick_array,
+            cache.tick,
+            pool_state,
+            zero_for_one,
+        )?;
+
+        // Handle case when tick is not initialized
+        if !next_tick_state.is_initialized() {
+            (tick_array_current, next_tick_state) = handle_uninitialized_tick(
+                tick_arrays,
+                pool_state,
+                tickarray_bitmap_extension,
+                current_vaild_tick_array_start_index,
+                zero_for_one,
+                &mut tick_array_indices,
+            )?;
+        }
+
+        // Calculate prices and execute swap step
+        let next_tick = next_tick_state.tick.clamp(tick::MIN_TICK, tick::MAX_TICK);
+        let next_sqrt_price_x64 = tick::get_sqrt_price_at_tick(next_tick).context(TickSnafu)?;
+
+        let target_price =
+            calculate_target_price(zero_for_one, next_sqrt_price_x64, sqrt_price_limit_x64);
+        // Execute swap step and update state
+        let swap_result = swap_step::compute_swap_step(
+            cache.sqrt_price_x64,
+            target_price,
+            cache.liquidity,
+            cache.remaining_amount,
+            fee,
+            is_base_input,
+            zero_for_one,
+        )
+        .context(SwapStepSnafu)?;
+        update_cache_from_swap_step(
+            &mut cache,
+            &swap_result,
+            zero_for_one,
+            &next_tick_state,
+            is_base_input,
+        )?;
+    }
+
+    let state = SwapState {
+        amount_in: cache.amount_in,
+        amount_out: cache.amount_out,
+        sqrt_price_x64: cache.sqrt_price_x64,
+        tick: cache.tick,
+        liquidity: cache.liquidity,
+        remaining_amount: cache.remaining_amount,
+        amount_calculated: cache.amount_calculated,
+    };
+    println!("state: {:?}", state);
+
+    Ok((state, tick_array_indices))
+}
 
 pub fn compute_swap_by_specified_sqrt_price(
     is_pool_current_tick_array: bool,
@@ -31,6 +179,8 @@ pub fn compute_swap_by_specified_sqrt_price(
                 sqrt_price_x64: pool_state.sqrt_price_x64,
                 tick: pool_state.tick_current,
                 liquidity: pool_state.liquidity,
+                remaining_amount: u64::MAX,
+                amount_calculated: 0,
             },
             VecDeque::new(),
         ));
@@ -40,15 +190,7 @@ pub fn compute_swap_by_specified_sqrt_price(
     let zero_for_one = sqrt_price < pool_state.sqrt_price_x64;
 
     // Check if target price is valid based on swap direction
-    if zero_for_one {
-        if sqrt_price < tick::MIN_SQRT_PRICE_X64 {
-            return Err(SwapError::SqrtPriceLimitX64TooSmall);
-        }
-    } else {
-        if sqrt_price > tick::MAX_SQRT_PRICE_X64 {
-            return Err(SwapError::SqrtPriceLimitX64TooLarge);
-        }
-    }
+    let _ = check_sqrt_price_limit(sqrt_price, zero_for_one)?;
 
     // Initialize tick array tracking
     let mut tick_array_current = tick_arrays.pop_front().ok_or(SwapError::NoTickArrayAvailable)?;
@@ -69,6 +211,7 @@ pub fn compute_swap_by_specified_sqrt_price(
         fee_amount: 0,
         remaining_amount: u64::MAX,
         initialized: true,
+        amount_calculated: 0,
     };
 
     // Main swap loop - continue until target price is reached
@@ -133,11 +276,27 @@ pub fn compute_swap_by_specified_sqrt_price(
         sqrt_price_x64: cache.sqrt_price_x64,
         tick: cache.tick,
         liquidity: cache.liquidity,
+        remaining_amount: cache.remaining_amount,
+        amount_calculated: cache.amount_calculated,
     };
     println!("state: {:?}", state);
 
     Ok((state, tick_array_indices))
 }
+
+fn check_sqrt_price_limit(sqrt_price: u128, zero_for_one: bool) -> Result<()> {
+    if zero_for_one {
+        if sqrt_price < tick::MIN_SQRT_PRICE_X64 {
+            return Err(SwapError::SqrtPriceLimitX64TooSmall);
+        }
+    } else {
+        if sqrt_price > tick::MAX_SQRT_PRICE_X64 {
+            return Err(SwapError::SqrtPriceLimitX64TooLarge);
+        }
+    }
+    Ok(())
+}
+
 // Helper functions to break down the complexity
 fn process_next_tick(
     tick_array: &TickArrayState,
@@ -227,9 +386,15 @@ fn update_cache_from_swap_step(
     }
 
     if is_base_input {
-        cache.remaining_amount = cache.remaining_amount.checked_sub(step.amount_in).unwrap_or(0);
+        cache.remaining_amount =
+            cache.remaining_amount.checked_sub(step.amount_in).context(MathOverflowSnafu)?;
+        cache.amount_calculated =
+            cache.amount_calculated.checked_add(step.amount_out).context(MathOverflowSnafu)?;
     } else {
-        cache.remaining_amount = cache.remaining_amount.checked_sub(step.amount_out).unwrap_or(0);
+        cache.remaining_amount =
+            cache.remaining_amount.checked_sub(step.amount_out).context(MathOverflowSnafu)?;
+        cache.amount_calculated =
+            cache.amount_calculated.checked_add(step.amount_in).context(MathOverflowSnafu)?;
     }
 
     Ok(())
@@ -242,6 +407,8 @@ pub struct SwapState {
     pub sqrt_price_x64: u128,
     pub tick: i32,
     pub liquidity: u128,
+    pub remaining_amount: u64,
+    pub amount_calculated: u64,
 }
 
 #[derive(Default, Debug)]
@@ -262,6 +429,8 @@ struct SwapCache {
     fee_amount: u64,
     // the remaining amount to be swapped
     remaining_amount: u64,
+    // the amount calculated
+    amount_calculated: u64,
 }
 
 #[derive(Debug, Snafu)]
