@@ -21,22 +21,19 @@ default      = ["enable-power"]
 enable-power = ["uint/enable-power"]
 
 [dependencies]
-borsh          = { workspace = true }
-solana-program = { workspace = true }
+borsh                = { workspace = true }
+solana-program       = { workspace = true }
+solana-program-error = { workspace = true }
 
 snafu = { workspace = true }
 
 anchor-trait                = { workspace = true }
 anchor-discriminator-derive = { workspace = true }
 anchor-instructions-derive  = { workspace = true }
+solana-accounts-derive      = { workspace = true }
+solana-common-core          = { workspace = true }
 
-uint = { git = "https://github.com/raydium-io/parity-common", package = "uint", features = [
-  "enable-power",
-] }
-
-[dev-dependencies]
-base64   = { workspace = true }
-proptest = { workspace = true }
+uint = { workspace = true, features = ["enable-power"] }
 
 [lints]
 workspace = true

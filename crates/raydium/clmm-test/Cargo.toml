@@ -1,0 +1,55 @@
+[package]
+name                   = "raydium-clmm-test"
+description            = "Raydium CLMM Test"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "raydium_clmm_test"
+
+[dependencies]
+borsh      = { workspace = true }
+base64     = { workspace = true }
+proptest   = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+
+solana-program               = { workspace = true }
+solana-program-pack          = { workspace = true }
+solana-sdk                   = { workspace = true }
+spl-token                    = { workspace = true }
+spl-token-2022               = { workspace = true }
+spl-associated-token-account = { workspace = true }
+litesvm                      = { workspace = true }
+
+# error handling
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+
+rust_decimal = { workspace = true, features = ["maths"] }
+uint         = { workspace = true, features = ["enable-power"] }
+
+anchor-trait                = { workspace = true }
+anchor-discriminator-derive = { workspace = true }
+anchor-instructions-derive  = { workspace = true }
+solana-accounts-derive      = { workspace = true }
+solana-common-core          = { workspace = true }
+
+solana-instruction-builder = { workspace = true }
+solana-deserialize         = { workspace = true }
+
+program-test-utils = { workspace = true }
+
+raydium-clmm = { workspace = true }
+
+[lints]
+workspace = true

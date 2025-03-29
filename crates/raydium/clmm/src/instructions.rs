@@ -4,12 +4,24 @@ use solana_program::pubkey::Pubkey;
 
 #[derive(Instructions)]
 pub enum ClmmInstruction {
+    CreateAmmConfig {
+        index: u16,
+        tick_spacing: u16,
+        trade_fee_rate: u32,
+        protocol_fee_rate: u32,
+        fund_fee_rate: u32,
+    },
+    CreatePool {
+        sqrt_price_x64: u128,
+        open_time: u64,
+    },
     Swap {
         amount: u64,
         other_amount_threshold: u64,
         sqrt_price_limit_x64: u128,
         is_base_input: bool,
     },
+    #[instruction(rename = "swap_v2")]
     SwapV2 {
         amount: u64,
         other_amount_threshold: u64,
@@ -26,6 +38,7 @@ pub enum ClmmInstruction {
         amount_0_max: u64,
         amount_1_max: u64,
     },
+    #[instruction(rename = "increase_liquidity_v2")]
     IncreaseLiquidityV2 {
         liquidity: u128,
         amount_0_max: u64,
@@ -37,6 +50,7 @@ pub enum ClmmInstruction {
         amount_0_min: u64,
         amount_1_min: u64,
     },
+    #[instruction(rename = "decrease_liquidity_v2")]
     DecreaseLiquidityV2 {
         liquidity: u128,
         amount_0_min: u64,
@@ -52,6 +66,7 @@ pub enum ClmmInstruction {
         amount_0_max: u64,
         amount_1_max: u64,
     },
+    #[instruction(rename = "open_position_v2")]
     OpenPositionV2 {
         tick_lower_index: i32,
         tick_upper_index: i32,
@@ -63,6 +78,7 @@ pub enum ClmmInstruction {
         with_metadata: bool,
         base_flag: Option<bool>,
     },
+    #[instruction(rename = "open_position_with_token22_nft")]
     OpenPositionWithToken22Nft {
         tick_lower_index: i32,
         tick_upper_index: i32,

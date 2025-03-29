@@ -1,0 +1,40 @@
+[package]
+name                   = "program-test-utils"
+description            = "Program Test Utils"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "program_test_utils"
+
+[features]
+
+[dependencies]
+borsh  = { workspace = true }
+base64 = { workspace = true }
+
+solana-sdk                   = { workspace = true }
+spl-token                    = { workspace = true }
+spl-associated-token-account = { workspace = true }
+solana-program-error         = { workspace = true }
+solana-program-pack          = { workspace = true }
+litesvm                      = { workspace = true }
+
+# error handling
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+
+anchor-trait       = { workspace = true }
+solana-deserialize = { workspace = true }
+
+[lints]
+workspace = true
