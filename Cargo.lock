@@ -133,10 +133,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "anchor-utils"
-version = "0.0.1"
-
-[[package]]
 name = "android-tzdata"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2395,13 +2391,12 @@ dependencies = [
 name = "raydium-clmm-client"
 version = "0.0.1"
 dependencies = [
- "anchor-utils",
+ "anyhow",
  "base64 0.22.1",
  "borsh 1.5.5",
  "proptest",
  "raydium-clmm",
  "rust_decimal",
- "snafu",
  "solana-instruction-builder",
  "solana-program",
  "solana-program-error",

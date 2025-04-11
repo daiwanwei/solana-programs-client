@@ -19,7 +19,6 @@ members = [
   "crates/orca/whirlpools",
   "crates/raydium/clmm-client",
 
-  "crates/anchor-utils",
   "crates/raydium/clmm-test",
   "crates/test-utils",
 ]

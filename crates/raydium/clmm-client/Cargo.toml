@@ -28,10 +28,9 @@ solana-program-error         = { workspace = true }
 
 rust_decimal = { workspace = true, features = ["maths"] }
 
-snafu     = { workspace = true }
+anyhow    = { workspace = true }
 thiserror = { workspace = true }
 
-anchor-utils               = { workspace = true }
 solana-instruction-builder = { workspace = true }
 
 raydium-clmm = { workspace = true }
