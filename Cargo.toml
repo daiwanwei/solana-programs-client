@@ -56,13 +56,13 @@ uint         = { package = "uint", git = "https://github.com/raydium-io/parity-c
 # testing
 proptest = "1"
 
-anchor-trait                = { package = "anchor-trait", git = "https://github.com/daiwanwei/solana-common", rev = "8f9df1f" }
-anchor-instructions-derive  = { package = "anchor-instructions-derive", git = "https://github.com/daiwanwei/solana-common", rev = "8f9df1f" }
-anchor-discriminator-derive = { package = "anchor-discriminator-derive", git = "https://github.com/daiwanwei/solana-common", rev = "8f9df1f" }
-solana-instruction-builder  = { package = "solana-instruction-builder", git = "https://github.com/daiwanwei/solana-common", rev = "8f9df1f" }
-solana-accounts-derive      = { package = "solana-accounts-derive", git = "https://github.com/daiwanwei/solana-common", rev = "8f9df1f" }
-solana-common-core          = { package = "solana-common-core", git = "https://github.com/daiwanwei/solana-common", rev = "8f9df1f" }
-solana-deserialize          = { package = "solana-deserialize", git = "https://github.com/daiwanwei/solana-common", rev = "8f9df1f" }
+anchor-trait                = { package = "anchor-trait", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
+anchor-instructions-derive  = { package = "anchor-instructions-derive", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
+anchor-discriminator-derive = { package = "anchor-discriminator-derive", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
+solana-instruction-builder  = { package = "solana-instruction-builder", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
+solana-accounts-derive      = { package = "solana-accounts-derive", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
+solana-common-core          = { package = "solana-common-core", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
+solana-deserialize          = { package = "solana-deserialize", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
 
 raydium-clmm    = { path = "crates/raydium/clmm" }
 orca-whirlpools = { path = "crates/orca/whirlpools" }

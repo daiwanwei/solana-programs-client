@@ -1,5 +1,5 @@
-use anchor_utils::prepare_anchor_ix;
 use raydium_clmm::{accounts, instructions, math::tick::get_array_start_index, utils::derive};
+use solana_instruction_builder::prepare_anchor_ix;
 use solana_sdk::{
     instruction::{AccountMeta, Instruction},
     pubkey::Pubkey,
@@ -39,7 +39,7 @@ pub fn prepare_amm_config_instruction(
     };
 
     let instruction =
-        prepare_anchor_ix!(program_id, create_amm_config_ix, create_amm_config_accounts, None);
+        prepare_anchor_ix!(program_id, create_amm_config_ix, create_amm_config_accounts);
 
     Ok((instruction, amm_config))
 }
@@ -83,7 +83,7 @@ pub fn prepare_create_pool_instruction(
         rent: sysvar::rent::ID,
     };
 
-    let instruction = prepare_anchor_ix!(program_id, create_pool_ix, create_pool_accounts, None);
+    let instruction = prepare_anchor_ix!(program_id, create_pool_ix, create_pool_accounts);
 
     Ok((instruction, pool_state))
 }
@@ -160,7 +160,7 @@ pub fn prepare_open_position_v2_instruction(
     };
 
     let instruction =
-        prepare_anchor_ix!(program_id, open_position_v2_ix, open_position_v2_accounts, None);
+        prepare_anchor_ix!(program_id, open_position_v2_ix, open_position_v2_accounts);
 
     Ok((instruction, position_nft_mint, protocol_position))
 }
@@ -199,7 +199,7 @@ pub fn prepare_increase_liquidity_v2_instruction(
     };
 
     let instruction =
-        prepare_anchor_ix!(program_id, increase_liquidity_ix, increase_liquidity_accounts, None);
+        prepare_anchor_ix!(program_id, increase_liquidity_ix, increase_liquidity_accounts);
 
     Ok(instruction)
 }
@@ -247,7 +247,7 @@ pub fn prepare_swap_v2_instruction(
     remaining_accounts.extend(tick_array_accounts);
 
     let instruction =
-        prepare_anchor_ix!(program_id, swap_v2_ix, swap_v2_accounts, Some(remaining_accounts));
+        prepare_anchor_ix!(program_id, swap_v2_ix, swap_v2_accounts, remaining_accounts);
 
     Ok(instruction)
 }
@@ -286,7 +286,7 @@ pub fn prepare_decrease_liquidity_v2_instruction(
     };
 
     let instruction =
-        prepare_anchor_ix!(program_id, decrease_liquidity_ix, decrease_liquidity_accounts, None);
+        prepare_anchor_ix!(program_id, decrease_liquidity_ix, decrease_liquidity_accounts);
 
     Ok(instruction)
 }
