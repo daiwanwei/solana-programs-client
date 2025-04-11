@@ -159,8 +159,16 @@ pub fn prepare_open_position_v2_instruction(
         system_program: system_program::ID,
     };
 
-    let instruction =
-        prepare_anchor_ix!(program_id, open_position_v2_ix, open_position_v2_accounts);
+    let tickarray_bitmap_extension =
+        derive::derive_tick_array_bitmap_pubkey(params.pool_state, Some(program_id)).0;
+    let remaining_accounts = vec![AccountMeta::new(tickarray_bitmap_extension, false)];
+
+    let instruction = prepare_anchor_ix!(
+        program_id,
+        open_position_v2_ix,
+        open_position_v2_accounts,
+        remaining_accounts
+    );
 
     Ok((instruction, position_nft_mint, protocol_position))
 }

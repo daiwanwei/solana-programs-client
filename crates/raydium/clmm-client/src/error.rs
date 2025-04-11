@@ -10,6 +10,10 @@ pub enum ClmmClientError {
     AccountNotFound,
     #[error("State not found")]
     StateNotFound,
+    #[error("No tick array available")]
+    NoTickArrayAvailable,
+    #[error("Swap error: {0}")]
+    SwapError(#[from] raydium_clmm::math::swap_v2::SwapError),
 }
 
 pub type Result<T> = std::result::Result<T, ClmmClientError>;

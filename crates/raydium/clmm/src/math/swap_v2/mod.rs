@@ -61,13 +61,6 @@ pub fn compute_swap(
 
     // Initialize state
     let mut tick_match_current_tick_array = is_pool_current_tick_array;
-    // let mut state = SwapState {
-    //     amount_specified_remaining: amount_specified,
-    //     amount_calculated: 0,
-    //     sqrt_price_x64: pool_state.sqrt_price_x64,
-    //     tick: pool_state.tick_current,
-    //     liquidity: pool_state.liquidity,
-    // };
 
     let mut cache = SwapCache {
         sqrt_price_x64: pool_state.sqrt_price_x64,
@@ -83,12 +76,15 @@ pub fn compute_swap(
 
     // Setup initial tick array
     let mut tick_array_current = tick_arrays.pop_front().ok_or(SwapError::NoTickArrayAvailable)?;
+
     if tick_array_current.start_tick_index != current_vaild_tick_array_start_index {
         return Err(SwapError::TickArrayStartTickIndexDoesNotMatch);
     }
 
     let mut tick_array_indices = VecDeque::new();
     tick_array_indices.push_back(tick_array_current.start_tick_index);
+
+    let mut current_tick_start = current_vaild_tick_array_start_index;
 
     // Main swap loop - continue until target price is reached
     for loop_count in 0..MAX_SWAP_STEP_COUNT + 1 {
@@ -97,6 +93,11 @@ pub fn compute_swap(
         {
             break;
         }
+
+        if cache.remaining_amount == 0 {
+            break;
+        }
+
         if loop_count == MAX_SWAP_STEP_COUNT {
             return Err(SwapError::LoopCountLimit);
         }
@@ -112,11 +113,11 @@ pub fn compute_swap(
 
         // Handle case when tick is not initialized
         if !next_tick_state.is_initialized() {
-            (tick_array_current, next_tick_state) = handle_uninitialized_tick(
+            (tick_array_current, next_tick_state, current_tick_start) = handle_uninitialized_tick(
                 tick_arrays,
                 pool_state,
                 tickarray_bitmap_extension,
-                current_vaild_tick_array_start_index,
+                current_tick_start,
                 zero_for_one,
                 &mut tick_array_indices,
             )?;
@@ -157,7 +158,6 @@ pub fn compute_swap(
         remaining_amount: cache.remaining_amount,
         amount_calculated: cache.amount_calculated,
     };
-    println!("state: {:?}", state);
 
     Ok((state, tick_array_indices))
 }
@@ -214,6 +214,8 @@ pub fn compute_swap_by_specified_sqrt_price(
         amount_calculated: 0,
     };
 
+    let mut current_tick_start = current_vaild_tick_array_start_index;
+
     // Main swap loop - continue until target price is reached
     for loop_count in 0..MAX_SWAP_STEP_COUNT + 1 {
         if cache.sqrt_price_x64 == sqrt_price
@@ -221,6 +223,11 @@ pub fn compute_swap_by_specified_sqrt_price(
         {
             break;
         }
+
+        if cache.remaining_amount == 0 {
+            break;
+        }
+
         if loop_count == MAX_SWAP_STEP_COUNT {
             return Err(SwapError::LoopCountLimit);
         }
@@ -235,11 +242,11 @@ pub fn compute_swap_by_specified_sqrt_price(
 
         // Handle case when tick is not initialized
         if !next_tick_state.is_initialized() {
-            (tick_array_current, next_tick_state) = handle_uninitialized_tick(
+            (tick_array_current, next_tick_state, current_tick_start) = handle_uninitialized_tick(
                 tick_arrays,
                 pool_state,
                 tickarray_bitmap_extension,
-                current_vaild_tick_array_start_index,
+                current_tick_start,
                 zero_for_one,
                 &mut tick_array_indices,
             )?;
@@ -325,7 +332,7 @@ fn handle_uninitialized_tick(
     current_index: i32,
     zero_for_one: bool,
     indices: &mut VecDeque<i32>,
-) -> Result<(TickArrayState, Box<TickState>)> {
+) -> Result<(TickArrayState, Box<TickState>, i32)> {
     let next_index = pool_state
         .next_initialized_tick_array_start_index(
             &Some(bitmap_extension.clone()),
@@ -336,7 +343,6 @@ fn handle_uninitialized_tick(
         .ok_or(SwapError::TickArrayStartTickIndexOutOfRangeLimit)?;
 
     let next_array = tick_arrays.pop_front().ok_or(SwapError::NoMoreTickArraysAvailable)?;
-
     if next_array.start_tick_index != next_index {
         return Err(SwapError::TickArrayStartTickIndexDoesNotMatch);
     }
@@ -344,7 +350,7 @@ fn handle_uninitialized_tick(
     indices.push_back(next_array.start_tick_index);
     let first_tick = next_array.first_initialized_tick(zero_for_one).context(TickStateSnafu)?;
 
-    Ok((next_array, Box::new(first_tick)))
+    Ok((next_array, Box::new(first_tick), next_index))
 }
 
 fn calculate_target_price(zero_for_one: bool, next_price: u128, limit_price: u128) -> u128 {

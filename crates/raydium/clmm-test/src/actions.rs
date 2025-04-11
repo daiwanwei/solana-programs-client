@@ -1,6 +1,9 @@
+use std::collections::VecDeque;
+
 use litesvm::{types::TransactionMetadata, LiteSVM};
 use program_test_utils::sign_and_send_transaction;
-use raydium_clmm::utils::derive;
+use raydium_clmm::{math::swap_v2::SwapState, utils::derive};
+use raydium_clmm_client::{preview::preview_swap_v2, types::PreviewSwapV2Params};
 use solana_sdk::{
     pubkey::Pubkey,
     signature::{Keypair, Signer},
@@ -177,6 +180,39 @@ impl RaydiumClmmTest {
         let metadata = sign_and_send_transaction!(svm, &[instruction], signer)?;
 
         Ok(metadata)
+    }
+
+    pub fn preview_swap_v2(&self, svm: &LiteSVM, params: SwapV2Params) -> Result<SwapState> {
+        let pool_state_account = self.get_pool_state(svm)?;
+        let tick_array_bitmap_extension = self.get_tick_array_bitmap(svm)?;
+
+        let tick_array_accounts =
+            raydium_clmm_client::utils::tick_array::load_cur_and_next_five_tick_array_pubkey(
+                self.pool_state,
+                &pool_state_account,
+                &tick_array_bitmap_extension,
+                params.zero_for_one,
+                Some(self.program_id),
+            );
+
+        let mut tick_arrays = VecDeque::new();
+        for tick_array_account in tick_array_accounts {
+            let tick_array = self.get_tick_array(svm, tick_array_account)?;
+            tick_arrays.push_back(tick_array.clone());
+        }
+
+        let swap_state = preview_swap_v2(PreviewSwapV2Params {
+            amount: params.amount,
+            sqrt_price_limit_x64: params.sqrt_price_limit_x64,
+            is_base_input: params.is_base_input,
+            zero_for_one: params.zero_for_one,
+            protocol_fee_rate: self.fee_config.protocol_fee_rate,
+            pool_state: pool_state_account,
+            tick_array_bitmap: tick_array_bitmap_extension,
+            tick_array_accounts: tick_arrays,
+        })?;
+
+        Ok(swap_state)
     }
 
     pub fn decrease_liquidity_v2(

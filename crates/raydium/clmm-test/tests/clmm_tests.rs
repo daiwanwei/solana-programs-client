@@ -18,7 +18,6 @@ use solana_sdk::{
 const INITIAL_LIQUIDITY: u128 = 1_000_000_000;
 const MAX_AMOUNT: u64 = 1_000_000_000_000_000_000;
 const INCREASE_LIQUIDITY: u128 = 10_000;
-const SWAP_AMOUNT: u64 = 10;
 
 #[cfg(test)]
 mod tests {
@@ -88,21 +87,49 @@ mod tests {
     fn test_swap() -> Result<(), Box<dyn std::error::Error>> {
         let Fixture { clmm_test, mut svm, admin: _, user0, user1: _, user2: _ } = create_fixture()?;
         update_clock(&mut svm, 1, 1000);
+        let zero_for_one = false;
+        let params = SwapV2Params {
+            amount: 10023,
+            other_amount_threshold: 0,
+            sqrt_price_limit_x64: 0,
+            is_base_input: true,
+            zero_for_one,
+            user_token_account_0: user0.token_account_0,
+            user_token_account_1: user0.token_account_1,
+        };
+
+        let token_account_0_before =
+            clmm_test.get_token_account(&mut svm, user0.token_account_0)?;
+        let token_account_1_before =
+            clmm_test.get_token_account(&mut svm, user0.token_account_1)?;
+
+        let swap_state = clmm_test.preview_swap_v2(&mut svm, params.clone())?;
 
         // Perform a swap
-        let _unused = clmm_test.swap_v2(
-            &mut svm,
-            SwapV2Params {
-                amount: SWAP_AMOUNT,
-                other_amount_threshold: 0,
-                sqrt_price_limit_x64: 0,
-                is_base_input: true,
-                zero_for_one: false,
-                user_token_account_0: user0.token_account_0,
-                user_token_account_1: user0.token_account_1,
-            },
-            &user0.keypair,
-        )?;
+        let _unused = clmm_test.swap_v2(&mut svm, params, &user0.keypair)?;
+
+        let token_account_0_after = clmm_test.get_token_account(&mut svm, user0.token_account_0)?;
+        let token_account_1_after = clmm_test.get_token_account(&mut svm, user0.token_account_1)?;
+
+        if zero_for_one {
+            assert_eq!(
+                token_account_0_before.amount - token_account_0_after.amount,
+                swap_state.amount_in
+            );
+            assert_eq!(
+                token_account_1_after.amount - token_account_1_before.amount,
+                swap_state.amount_out
+            );
+        } else {
+            assert_eq!(
+                token_account_0_after.amount - token_account_0_before.amount,
+                swap_state.amount_out
+            );
+            assert_eq!(
+                token_account_1_before.amount - token_account_1_after.amount,
+                swap_state.amount_in
+            );
+        }
 
         Ok(())
     }
@@ -113,7 +140,17 @@ mod tests {
         update_clock(&mut svm, 1, 1000);
 
         // Define different tick ranges to test
-        let tick_ranges = [(-120, -60), (-60, -30), (-30, 30), (30, 60), (60, 120)];
+        let tick_ranges = [
+            (-120, -60),
+            (-60, -30),
+            (0, 23),
+            (1, 50),
+            (-30, 30),
+            (30, 60),
+            (40, 80),
+            (60, 120),
+            (120, 180),
+        ];
 
         let mut position_nft_mints = Vec::new();
 
@@ -132,6 +169,7 @@ mod tests {
                 },
                 &user0.keypair,
             )?;
+
             position_nft_mints.push(position_nft_mint);
         }
 
@@ -160,7 +198,7 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
         create_user(&mut svm, &admin, &clmm_test.token_pair.mint_0, &clmm_test.token_pair.mint_1);
 
     // Define different tick ranges
-    let tick_ranges = [(-120, -60), (-60, -30), (-30, 30), (30, 60), (60, 120)];
+    let tick_ranges = [(-120, -60), (-60, -30), (0, 23), (1, 50), (-30, 30), (30, 60), (60, 120)];
 
     let mut position_nft_mints = Vec::new();
 
@@ -171,7 +209,7 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
             OpenPositionV2Params {
                 tick_lower_index: tick_lower,
                 tick_upper_index: tick_upper,
-                liquidity: INITIAL_LIQUIDITY,
+                liquidity: 1_000_000,
                 amount_0_max: MAX_AMOUNT,
                 amount_1_max: MAX_AMOUNT,
                 user_token_account_0: user0.token_account_0,
@@ -179,6 +217,21 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
             },
             &user0.keypair,
         )?;
+        update_clock(&mut svm, 1, 1000);
+
+        let _unused = clmm_test.increase_liquidity_v2(
+            &mut svm,
+            IncreaseLiquidityV2Params {
+                liquidity: 1_000_000,
+                amount_0_max: MAX_AMOUNT,
+                amount_1_max: MAX_AMOUNT,
+                user_token_account_0: user0.token_account_0,
+                user_token_account_1: user0.token_account_1,
+                position_nft_mint,
+            },
+            &user0.keypair,
+        )?;
+
         position_nft_mints.push(position_nft_mint);
     }
 

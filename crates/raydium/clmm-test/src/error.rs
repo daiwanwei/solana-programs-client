@@ -25,6 +25,12 @@ pub enum ClmmTestError {
 
     #[error("Invalid token pair")]
     InvalidTokenPair,
+
+    #[error("Tick array not found")]
+    TickArrayNotFound,
+
+    #[error("Token account not found")]
+    TokenAccountNotFound,
 }
 
 impl From<litesvm::types::FailedTransactionMetadata> for ClmmTestError {

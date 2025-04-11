@@ -1,5 +1,5 @@
 use litesvm::LiteSVM;
-use program_test_utils::account::get_anchor_account;
+use program_test_utils::account::{get_anchor_account, get_solana_account};
 use raydium_clmm::{state, utils::derive};
 use rust_decimal::Decimal;
 use solana_sdk::pubkey::Pubkey;
@@ -53,5 +53,25 @@ impl RaydiumClmmTest {
             self.token_pair.decimals_0,
             self.token_pair.decimals_1,
         ))
+    }
+
+    pub fn get_tick_array(
+        &self,
+        svm: &LiteSVM,
+        tick_array_account: Pubkey,
+    ) -> Result<state::TickArrayState> {
+        get_anchor_account::<state::TickArrayState>(svm, &tick_array_account)
+            .ok_or(ClmmTestError::TickArrayNotFound.into())
+            .map(|account| account.data)
+    }
+
+    pub fn get_token_account(
+        &self,
+        svm: &LiteSVM,
+        token_account: Pubkey,
+    ) -> Result<spl_token::state::Account> {
+        get_solana_account::<spl_token::state::Account>(svm, &token_account)
+            .ok_or(ClmmTestError::TokenAccountNotFound.into())
+            .map(|account| account.data)
     }
 }

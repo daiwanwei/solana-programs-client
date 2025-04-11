@@ -107,7 +107,7 @@ pub struct TickState {
 }
 
 impl TickState {
-    pub fn is_initialized(&self) -> bool { self.liquidity_gross > 0 }
+    pub fn is_initialized(&self) -> bool { self.liquidity_gross != 0 }
 }
 
 #[derive(Debug, Snafu)]
