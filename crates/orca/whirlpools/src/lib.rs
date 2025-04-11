@@ -1,3 +1,4 @@
+pub mod accounts;
 pub mod constants;
 pub mod error;
 pub mod events;

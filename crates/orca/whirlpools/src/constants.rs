@@ -27,3 +27,15 @@ pub const MAX_PROTOCOL_FEE_RATE: u16 = 2_500;
 // Assuming that PROTOCOL_FEE_RATE is represented as a basis point
 // We want PROTOCOL_FEE_RATE_MUL_VALUE = 1/PROTOCOL_FEE_UNIT, so 1e4
 pub const PROTOCOL_FEE_RATE_MUL_VALUE: u128 = 10_000;
+
+// Seeds
+pub const WHIRLPOOL_SEED: &str = "whirlpool";
+pub const POSITION_SEED: &str = "position";
+pub const POSITION_BUNDLE_SEED: &str = "position_bundle";
+pub const FEE_TIER_SEED: &str = "fee_tier";
+pub const TICK_ARRAY_SEED: &str = "tick_array";
+pub const ORACLE_SEED: &str = "oracle";
+pub const CONFIG_EXTENSION_SEED: &str = "config_extension";
+pub const TOKEN_BADGE_SEED: &str = "token_badge";
+pub const LOCK_CONFIG_SEED: &str = "lock_config";
+pub const REWARD_SEED: &str = "reward";

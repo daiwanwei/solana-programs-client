@@ -2062,6 +2062,8 @@ dependencies = [
  "base64 0.22.1",
  "borsh 1.5.5",
  "snafu",
+ "solana-accounts-derive",
+ "solana-common-core",
  "solana-program",
 ]
 

@@ -27,6 +27,8 @@ snafu = { workspace = true }
 anchor-trait                = { workspace = true }
 anchor-discriminator-derive = { workspace = true }
 anchor-instructions-derive  = { workspace = true }
+solana-common-core          = { workspace = true }
+solana-accounts-derive      = { workspace = true }
 
 [dev-dependencies]
 base64 = { workspace = true }
