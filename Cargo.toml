@@ -17,7 +17,9 @@ resolver = "2"
 members = [
   "crates/raydium/clmm",
   "crates/orca/whirlpools",
+  "crates/raydium/clmm-client",
 
+  "crates/anchor-utils",
   "crates/raydium/clmm-test",
   "crates/test-utils",
 ]
@@ -65,6 +67,9 @@ solana-deserialize          = { package = "solana-deserialize", git = "https://g
 raydium-clmm    = { path = "crates/raydium/clmm" }
 orca-whirlpools = { path = "crates/orca/whirlpools" }
 
+raydium-clmm-client = { path = "crates/raydium/clmm-client" }
+
+anchor-utils       = { path = "crates/anchor-utils" }
 program-test-utils = { path = "crates/test-utils" }
 raydium-clmm-test  = { path = "crates/raydium/clmm-test" }
 

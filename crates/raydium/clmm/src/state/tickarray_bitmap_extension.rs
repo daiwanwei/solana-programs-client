@@ -5,6 +5,7 @@ use solana_program::pubkey::Pubkey;
 
 use crate::{
     constants::EXTENSION_TICKARRAY_BITMAP_SIZE,
+    libraries::U512,
     math::{tick, tickarray_bitmap},
 };
 
@@ -78,6 +79,23 @@ impl TickArrayBitmapExtension {
             tick_spacing,
             zero_for_one,
         ))
+    }
+
+    /// Check if the tick array is initialized
+    pub fn check_tick_array_is_initialized(
+        &self,
+        tick_array_start_index: i32,
+        tick_spacing: u16,
+    ) -> TickArrayBitmapResult<(bool, i32)> {
+        let (_, tickarray_bitmap) = self.get_bitmap(tick_array_start_index, tick_spacing)?;
+
+        let tick_array_offset_in_bitmap =
+            tickarray_bitmap::tick_array_offset_in_bitmap(tick_array_start_index, tick_spacing);
+
+        if U512(tickarray_bitmap).bit(tick_array_offset_in_bitmap as usize) {
+            return Ok((true, tick_array_start_index));
+        }
+        Ok((false, tick_array_start_index))
     }
 }
 

@@ -5,6 +5,7 @@ use crate::{
         AMM_CONFIG_SEED, OBSERVATION_SEED, POOL_SEED, POOL_TICK_ARRAY_BITMAP_SEED, POOL_VAULT_SEED,
         POSITION_SEED, TICK_ARRAY_SEED,
     },
+    math::tick,
     ID,
 };
 
@@ -85,6 +86,16 @@ pub fn derive_tick_array_pubkey(
         &[TICK_ARRAY_SEED.as_bytes(), pool_state.as_ref(), start_tick_index.to_be_bytes().as_ref()],
         &program_id,
     )
+}
+
+pub fn derive_tick_array_pubkey_by_tick_index(
+    pool_state: Pubkey,
+    tick_index: i32,
+    tick_spacing: u16,
+    program_id: Option<Pubkey>,
+) -> (Pubkey, u8) {
+    let start_tick_index = tick::get_array_start_index(tick_index, tick_spacing);
+    derive_tick_array_pubkey(pool_state, start_tick_index, program_id)
 }
 
 pub fn derive_observation_pubkey(pool_state: Pubkey, program_id: Option<Pubkey>) -> (Pubkey, u8) {

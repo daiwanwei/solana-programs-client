@@ -3,7 +3,9 @@ use litesvm::{
     LiteSVM,
 };
 use solana_sdk::{
-    clock::Clock, instruction::Instruction, pubkey::Pubkey, signature::Keypair,
+    clock::Clock,
+    instruction::Instruction,
+    signature::{Keypair, Signer},
     transaction::Transaction,
 };
 
@@ -14,14 +16,18 @@ pub fn update_clock(svm: &mut LiteSVM, slot: u64, unix_timestamp: i64) {
     svm.set_sysvar(&clock);
 }
 
-pub fn prepare_and_send_transaction(
+pub fn sign_and_send_transaction(
     svm: &mut LiteSVM,
-    ixs: &[Instruction],
-    payer: Option<&Pubkey>,
-    signers: &[&Keypair],
+    instructions: &[Instruction],
+    payer: &Keypair,
+    signers: Option<&[&Keypair]>,
 ) -> Result<TransactionMetadata, FailedTransactionMetadata> {
-    let transaction =
-        Transaction::new_signed_with_payer(ixs, payer, signers, svm.latest_blockhash());
-
-    svm.send_transaction(transaction)
+    let mut transaction = Transaction::new_with_payer(instructions, Some(&payer.pubkey()));
+    let last_blockhash = svm.latest_blockhash();
+    transaction.partial_sign(&[payer], last_blockhash);
+    if let Some(signers) = signers {
+        transaction.partial_sign(signers, last_blockhash);
+    }
+    let metadata = svm.send_transaction(transaction)?;
+    Ok(metadata)
 }

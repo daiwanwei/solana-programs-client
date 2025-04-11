@@ -1,0 +1,44 @@
+[package]
+name                   = "raydium-clmm-client"
+description            = "Client library for Raydium CLMM instructions"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "raydium_clmm_client"
+
+[dependencies]
+borsh = { workspace = true }
+
+solana-program               = { workspace = true }
+solana-sdk                   = { workspace = true }
+spl-associated-token-account = { workspace = true }
+spl-token                    = { workspace = true }
+spl-token-2022               = { workspace = true }
+solana-program-error         = { workspace = true }
+
+rust_decimal = { workspace = true, features = ["maths"] }
+
+snafu     = { workspace = true }
+thiserror = { workspace = true }
+
+anchor-utils               = { workspace = true }
+solana-instruction-builder = { workspace = true }
+
+raydium-clmm = { workspace = true }
+
+[dev-dependencies]
+base64   = { workspace = true }
+proptest = { workspace = true }
+
+[lints]
+workspace = true

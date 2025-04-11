@@ -1,0 +1,35 @@
+[package]
+# Package name
+name = "anchor-utils"
+# Package description
+description = "Utility library for Anchor programs"
+# Use workspace version
+version.workspace = true
+# Use workspace authors
+authors.workspace = true
+# Use workspace homepage
+homepage.workspace = true
+# Use workspace readme
+readme.workspace = true
+# Use workspace repository
+repository.workspace = true
+# Use workspace license
+license.workspace = true
+# Use workspace edition
+edition.workspace = true
+# Use workspace rust version
+rust-version.workspace = true
+# Use workspace categories
+categories.workspace = true
+# Use workspace keywords
+keywords.workspace = true
+
+[lib]
+# Library type
+crate-type = ["cdylib", "lib"]
+# Library name
+name = "anchor_utils"
+
+[lints]
+# Use workspace lints
+workspace = true

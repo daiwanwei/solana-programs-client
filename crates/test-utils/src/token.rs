@@ -15,16 +15,35 @@ use spl_associated_token_account::{
 };
 use spl_token::instruction as token_instruction;
 
-use crate::account::check_account_exists;
+use crate::{account::check_account_exists, sign_and_send_transaction};
 
+/// Creates a new token mint with the specified parameters.
+///
+/// # Arguments
+/// * `svm` - The LiteSVM instance
+/// * `payer` - The keypair that will pay for the transaction
+/// * `mint_authority` - The public key that will have minting authority
+/// * `decimals` - The number of decimals for the token
+/// * `token_program_id` - The program ID of the token program
+///
+/// # Returns
+/// A tuple containing the mint's public key and transaction metadata
+///
+/// # Errors
+/// Returns an error if the transaction fails or if the token program ID is
+/// invalid
 pub fn create_mint(
     svm: &mut LiteSVM,
     payer: &Keypair,
     mint_authority: &Pubkey,
     decimals: u8,
+    token_program_id: Pubkey,
 ) -> Result<(Pubkey, TransactionMetadata)> {
+    if decimals > 9 {
+        return Err(TokenError::InvalidDecimals(decimals));
+    }
+
     let mint = Keypair::new();
-    let token_program_id = spl_token::ID;
     let space = 82;
     let create_account_ix = system_instruction::create_account(
         &payer.pubkey(),
@@ -51,39 +70,62 @@ pub fn create_mint(
     Ok((mint.pubkey(), result))
 }
 
+/// Mints tokens to a specified destination account.
+///
+/// # Arguments
+/// * `svm` - The LiteSVM instance
+/// * `authority` - The keypair with minting authority
+/// * `mint` - The mint's public key
+/// * `destination` - The destination token account
+/// * `signers` - Additional signers required for the transaction
+/// * `amount` - The amount of tokens to mint
+///
+/// # Returns
+/// Transaction metadata on success
+///
+/// # Errors
+/// Returns an error if the transaction fails or if the mint account doesn't
+/// exist
 pub fn mint_to(
     svm: &mut LiteSVM,
-    authority: &Pubkey,
+    authority: &Keypair,
     mint: &Pubkey,
     destination: &Pubkey,
-    signers: Option<&[&Keypair]>,
+    signers: &[&Keypair],
     amount: u64,
 ) -> Result<TransactionMetadata> {
-    let signers = signers.unwrap_or(&[]);
+    if amount == 0 {
+        return Err(TokenError::InvalidAmount(amount));
+    }
+
     let signer_pubkeys = signers.iter().map(|s| s.pubkey()).collect::<Vec<_>>();
 
-    let token_program_id = spl_token::ID;
+    let mint_account = svm.get_account(mint).ok_or_else(|| TokenError::MintNotFound(*mint))?;
+    let token_program_id = mint_account.owner;
 
     let mint_to_ix = token_instruction::mint_to(
         &token_program_id,
         &mint,
         &destination,
-        &authority,
+        &authority.pubkey(),
         &signer_pubkeys.iter().map(|s| s).collect::<Vec<_>>(),
         amount,
     )?;
 
-    let transaction = Transaction::new_signed_with_payer(
-        &[mint_to_ix],
-        Some(&authority),
-        signers,
-        svm.latest_blockhash(),
-    );
-    let result = svm.send_transaction(transaction)?;
+    let result = sign_and_send_transaction!(svm, &[mint_to_ix], authority, signers)?;
 
     Ok(result)
 }
 
+/// Prepares an instruction to create an associated token account.
+///
+/// # Arguments
+/// * `mint` - The mint's public key
+/// * `payer` - The payer's public key
+/// * `wallet` - The wallet's public key
+///
+/// # Returns
+/// A tuple containing the instruction and the associated token account address
 pub fn prepare_create_ata_instruction(
     mint: &Pubkey,
     payer: &Pubkey,
@@ -103,40 +145,60 @@ pub fn prepare_create_ata_instruction(
     Ok((create_ata_ix, ata))
 }
 
+/// Gets an existing associated token account or creates a new one.
+///
+/// # Arguments
+/// * `svm` - The LiteSVM instance
+/// * `payer` - The keypair that will pay for the transaction
+/// * `mint` - The mint's public key
+/// * `wallet` - The wallet's public key
+///
+/// # Returns
+/// A tuple containing the associated token account address and transaction
+/// metadata
+///
+/// # Errors
+/// Returns an error if the transaction fails or if the mint account doesn't
+/// exist
 pub fn get_or_create_ata(
     svm: &mut LiteSVM,
     payer: &Keypair,
     mint: &Pubkey,
     wallet: &Pubkey,
 ) -> Result<(Pubkey, TransactionMetadata)> {
-    let token_program_id = spl_token::ID;
+    let mint_account = svm.get_account(mint).ok_or_else(|| TokenError::MintNotFound(*mint))?;
+    let token_program_id = mint_account.owner;
+
     let ata = get_associated_token_address_with_program_id(&wallet, &mint, &token_program_id);
     if check_account_exists(&svm, &ata) {
         return Ok((ata, TransactionMetadata::default()));
     }
 
     let (create_ata_ix, ata) = prepare_create_ata_instruction(mint, &payer.pubkey(), wallet)?;
-    let transaction = Transaction::new_signed_with_payer(
-        &[create_ata_ix],
-        Some(&payer.pubkey()),
-        &[&payer],
-        svm.latest_blockhash(),
-    );
-    let result = svm.send_transaction(transaction)?;
+    let result = sign_and_send_transaction!(svm, &[create_ata_ix], &payer)?;
 
     Ok((ata, result))
 }
 
 #[derive(Debug, thiserror::Error)]
 pub enum TokenError {
-    #[error("Token error")]
+    #[error("Token error: {0}")]
     Token(#[from] spl_token::error::TokenError),
 
-    #[error("LiteSVM error")]
+    #[error("LiteSVM transaction failed")]
     LiteSVM(FailedTransactionMetadata),
 
-    #[error("Program error")]
+    #[error("Program error: {0}")]
     Program(#[from] ProgramError),
+
+    #[error("Invalid decimals: {0}. Must be between 0 and 9")]
+    InvalidDecimals(u8),
+
+    #[error("Invalid amount: {0}. Must be greater than 0")]
+    InvalidAmount(u64),
+
+    #[error("Mint account not found: {0}")]
+    MintNotFound(Pubkey),
 }
 
 impl From<FailedTransactionMetadata> for TokenError {

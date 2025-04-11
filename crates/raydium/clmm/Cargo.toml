@@ -35,5 +35,9 @@ solana-common-core          = { workspace = true }
 
 uint = { workspace = true, features = ["enable-power"] }
 
+[dev-dependencies]
+base64   = { workspace = true }
+proptest = { workspace = true }
+
 [lints]
 workspace = true
