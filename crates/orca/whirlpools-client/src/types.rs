@@ -8,9 +8,33 @@ pub struct InitializeConfigParams {
     pub default_protocol_fee_rate: u16,
 }
 
+pub struct InitializeFeeTierParams {
+    pub funder: Pubkey,
+    pub whirlpool_config: Pubkey,
+    pub fee_authority: Pubkey,
+    pub tick_spacing: u16,
+    pub default_fee_rate: u16,
+}
+
+pub struct InitializeTickArraysParams {
+    pub whirlpool: Pubkey,
+    pub funder: Pubkey,
+    pub start_tick_index: i32,
+    pub array_count: i32,
+    pub tick_spacing: i32,
+    pub a_to_b: bool,
+}
+
+pub struct InitializeTickArrayParams {
+    pub whirlpool: Pubkey,
+    pub start_tick_index: i32,
+    pub funder: Pubkey,
+}
+
 pub struct InitializePoolParams {
     pub whirlpool_creator: Pubkey,
     pub whirlpool_config: Pubkey,
+    pub fee_tier: Pubkey,
     pub mint_a: Pubkey,
     pub mint_b: Pubkey,
     pub tick_spacing: u16,
@@ -29,7 +53,6 @@ pub struct IncreaseLiquidityParams {
     pub nft_owner: Pubkey,
     pub whirlpool: Pubkey,
     pub position_nft_mint: Pubkey,
-    pub position: Pubkey,
     pub tick_array_lower: Pubkey,
     pub tick_array_upper: Pubkey,
     pub token_account_a: Pubkey,
@@ -68,7 +91,6 @@ pub struct SwapParams {
     pub token_vault_a: Pubkey,
     pub token_owner_account_b: Pubkey,
     pub token_vault_b: Pubkey,
-    pub observation_state: Pubkey,
     pub amount: u64,
     pub other_amount_threshold: u64,
     pub sqrt_price_limit: u128,
