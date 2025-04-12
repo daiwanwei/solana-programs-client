@@ -62,9 +62,9 @@ pub fn derive_tick_array_pubkey(
     program_id: Option<Pubkey>,
 ) -> (Pubkey, u8) {
     let program_id = program_id.unwrap_or(ID);
-    let start_tick_index_bytes = start_tick_index.to_le_bytes();
+    // let start_tick_index_bytes = start_tick_index.to_string().to_bytes();
     Pubkey::find_program_address(
-        &[TICK_ARRAY_SEED.as_bytes(), whirlpool.as_ref(), start_tick_index_bytes.as_ref()],
+        &[TICK_ARRAY_SEED.as_bytes(), whirlpool.as_ref(), start_tick_index.to_string().as_bytes()],
         &program_id,
     )
 }

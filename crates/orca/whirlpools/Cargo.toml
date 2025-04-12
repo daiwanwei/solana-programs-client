@@ -22,7 +22,8 @@ name       = "orca_whirlpools"
 borsh          = { workspace = true }
 solana-program = { workspace = true }
 
-snafu = { workspace = true }
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
 
 anchor-trait                = { workspace = true }
 anchor-discriminator-derive = { workspace = true }

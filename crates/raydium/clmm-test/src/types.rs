@@ -1,17 +1,4 @@
 use solana_sdk::pubkey::Pubkey;
-use thiserror::Error;
-
-#[derive(Debug, Error)]
-pub enum ClmmProgramTestError {
-    #[error("Pool state not found")]
-    PoolStateNotFound,
-    #[error("Personal position not found")]
-    PersonalPositionNotFound,
-    #[error("Mint not found")]
-    MintNotFound,
-    #[error("Invalid token pair")]
-    InvalidTokenPair,
-}
 
 #[derive(Clone, Debug)]
 pub struct TokenPair {

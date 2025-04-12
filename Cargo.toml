@@ -21,6 +21,7 @@ members = [
 
   "crates/orca/whirlpools",
   "crates/orca/whirlpools-client",
+  "crates/orca/whirlpools-test",
 
   "crates/test-utils",
 ]
@@ -67,6 +68,7 @@ solana-deserialize          = { package = "solana-deserialize", git = "https://g
 
 orca-whirlpools        = { path = "crates/orca/whirlpools" }
 orca-whirlpools-client = { path = "crates/orca/whirlpools-client" }
+orca-whirlpools-test   = { path = "crates/orca/whirlpools-test" }
 
 raydium-clmm        = { path = "crates/raydium/clmm" }
 raydium-clmm-client = { path = "crates/raydium/clmm-client" }

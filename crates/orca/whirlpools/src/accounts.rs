@@ -3,7 +3,7 @@ use solana_program::pubkey::Pubkey;
 
 #[derive(ToAccountMetas, Clone, Debug, Default)]
 pub struct InitializeConfig {
-    #[account(mut)]
+    #[account(mut, signer = true)]
     pub config: Pubkey,
     #[account(mut, signer = true)]
     pub funder: Pubkey,
@@ -13,15 +13,15 @@ pub struct InitializeConfig {
 #[derive(ToAccountMetas, Clone, Debug, Default)]
 pub struct InitializePool {
     pub whirlpools_config: Pubkey,
+    pub token_mint_a: Pubkey,
+    pub token_mint_b: Pubkey,
     #[account(mut, signer = true)]
     pub funder: Pubkey,
     #[account(mut)]
     pub whirlpool: Pubkey,
-    pub token_mint_a: Pubkey,
-    pub token_mint_b: Pubkey,
-    #[account(mut)]
+    #[account(mut, signer = true)]
     pub token_vault_a: Pubkey,
-    #[account(mut)]
+    #[account(mut, signer = true)]
     pub token_vault_b: Pubkey,
     pub fee_tier: Pubkey,
     pub token_program: Pubkey,
@@ -77,7 +77,7 @@ pub struct OpenPosition {
     #[account(mut)]
     pub position: Pubkey,
 
-    #[account(mut)]
+    #[account(mut, signer = true)]
     pub position_mint: Pubkey,
 
     #[account(mut)]
