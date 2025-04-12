@@ -59,7 +59,7 @@ pub fn compute_swap_step_by_specified_amount_in(
             calculate_fee(amount_remaining, fee_rate, true).context(CalculateFeeOverflowSnafu)?;
         return Ok(SwapStep {
             sqrt_price_next_x64: sqrt_price_target_x64,
-            amount_in: amount_remaining.checked_sub(fee).context(MathOverflowSnafu)?,
+            amount_in: amount_remaining,
             amount_out: 0,
             fee_amount: fee,
         });
