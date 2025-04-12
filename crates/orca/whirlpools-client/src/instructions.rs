@@ -69,7 +69,7 @@ pub fn prepare_initialize_tick_array_instruction(
     params: InitializeTickArrayParams,
     program_id: Pubkey,
 ) -> Result<(Instruction, Pubkey)> {
-    let (tick_array, bump) = derive::derive_tick_array_pubkey(
+    let (tick_array, _) = derive::derive_tick_array_pubkey(
         params.whirlpool,
         params.start_tick_index,
         Some(program_id),
@@ -136,10 +136,8 @@ pub fn prepare_open_position_instruction(
     program_id: Pubkey,
 ) -> Result<(Instruction, Keypair)> {
     let position_mint = Keypair::new();
-    let (position, position_bump) = orca_whirlpools::utils::derive::derive_position_pubkey(
-        position_mint.pubkey(),
-        Some(program_id),
-    );
+    let (position, position_bump) =
+        derive::derive_position_pubkey(position_mint.pubkey(), Some(program_id));
 
     let ix = orca_whirlpools::instructions::OpenPosition {
         bumps: orca_whirlpools::instructions::OpenPositionBumps { position_bump },
@@ -172,10 +170,7 @@ pub fn prepare_increase_liquidity_instruction(
     params: IncreaseLiquidityParams,
     program_id: Pubkey,
 ) -> Result<Instruction> {
-    let (position, _) = orca_whirlpools::utils::derive::derive_position_pubkey(
-        params.position_nft_mint,
-        Some(program_id),
-    );
+    let (position, _) = derive::derive_position_pubkey(params.position_nft_mint, Some(program_id));
 
     let ix = orca_whirlpools::instructions::IncreaseLiquidity {
         liquidity_amount: params.liquidity,
@@ -225,11 +220,7 @@ pub fn prepare_swap_instruction(params: SwapParams, program_id: Pubkey) -> Resul
         tick_array_0: params.tick_array_0,
         tick_array_1: params.tick_array_1,
         tick_array_2: params.tick_array_2,
-        oracle: orca_whirlpools::utils::derive::derive_oracle_pubkey(
-            params.whirlpool,
-            Some(program_id),
-        )
-        .0,
+        oracle: derive::derive_oracle_pubkey(params.whirlpool, Some(program_id)).0,
     };
 
     let instruction = prepare_anchor_ix!(program_id, ix, accounts);

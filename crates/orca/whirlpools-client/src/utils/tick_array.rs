@@ -40,10 +40,11 @@ pub fn get_tick_array_pubkeys(
 ) -> Vec<Pubkey> {
     let direction: i32 = if a_to_b { -1 } else { 1 };
     let mut result = Vec::with_capacity(count as usize);
-    let ticks_in_array = tick_spacing as i32 * TICK_ARRAY_SIZE as i32;
+    let ticks_in_array = tick_spacing as i32 * TICK_ARRAY_SIZE;
 
     for i in 0..count {
         let start_index = tick_start_index + direction * ticks_in_array * i as i32;
+        println!("start_index: {}", start_index);
         let tick_array =
             derive::derive_tick_array_pubkey(whirlpool, start_index, Some(program_id)).0;
         result.push(tick_array);

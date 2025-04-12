@@ -1,33 +1,94 @@
-use rust_decimal::{prelude::ToPrimitive, Decimal, MathematicalOps};
+use libm::{floor, pow, sqrt};
 
-pub fn calculate_sqrt_price_x64(price: Decimal, decimals_0: u8, decimals_1: u8) -> u128 {
-    // Adjust price based on token decimals
-    let adjusted_price = if decimals_0 > decimals_1 {
-        price * Decimal::from(10u64.pow(decimals_0 as u32 - decimals_1 as u32))
-    } else {
-        price / Decimal::from(10u64.pow(decimals_1 as u32 - decimals_0 as u32))
-    };
+use super::{invert_tick_index, sqrt_price_to_tick_index, tick_index_to_sqrt_price};
+use crate::types::U128;
 
-    // Calculate square root
-    let price_sqrt = adjusted_price.sqrt().unwrap();
+const Q64_RESOLUTION: f64 = 18446744073709551616.0;
 
-    // Convert to Q64 fixed point format
-    let price_sqrt_u64 = price_sqrt * Decimal::from(1u128 << 64);
-    price_sqrt_u64.to_u128().unwrap()
+/// Convert a price into a sqrt priceX64
+/// IMPORTANT: floating point operations can reduce the precision of the result.
+/// Make sure to do these operations last and not to use the result for further
+/// calculations.
+///
+/// # Parameters
+/// * `price` - The price to convert
+/// * `decimals_a` - The number of decimals of the base token
+/// * `decimals_b` - The number of decimals of the quote token
+///
+/// # Returns
+/// * `u128` - The sqrt priceX64
+pub fn price_to_sqrt_price(price: f64, decimals_a: u8, decimals_b: u8) -> U128 {
+    let power = pow(10f64, decimals_a as f64 - decimals_b as f64);
+    (floor(sqrt(price / power) * Q64_RESOLUTION) as u128).into()
 }
 
-pub fn calculate_price(sqrt_price_x64: u128, decimals_0: u8, decimals_1: u8) -> Decimal {
-    let price_sqrt = normalize_price_sqrt(sqrt_price_x64);
-
-    let price = price_sqrt * price_sqrt;
-
-    if decimals_0 > decimals_1 {
-        price * Decimal::from(10u64.pow(decimals_0 as u32 - decimals_1 as u32))
-    } else {
-        price / Decimal::from(10u64.pow(decimals_1 as u32 - decimals_0 as u32))
-    }
+/// Convert a sqrt priceX64 into a tick index
+/// IMPORTANT: floating point operations can reduce the precision of the result.
+/// Make sure to do these operations last and not to use the result for further
+/// calculations.
+///
+/// # Parameters
+/// * `sqrt_price` - The sqrt priceX64 to convert
+/// * `decimals_a` - The number of decimals of the base token
+/// * `decimals_b` - The number of decimals of the quote token
+///
+/// # Returns
+/// * `f64` - The decimal price
+pub fn sqrt_price_to_price(sqrt_price: U128, decimals_a: u8, decimals_b: u8) -> f64 {
+    let power = pow(10f64, decimals_a as f64 - decimals_b as f64);
+    let sqrt_price: u128 = sqrt_price.into();
+    let sqrt_price_u128 = sqrt_price as f64;
+    pow(sqrt_price_u128 / Q64_RESOLUTION, 2.0) * power
 }
 
-pub fn normalize_price_sqrt(price: u128) -> Decimal {
-    Decimal::from(price) / Decimal::from(2u128.pow(64))
+/// Invert a price
+/// IMPORTANT: floating point operations can reduce the precision of the result.
+/// Make sure to do these operations last and not to use the result for further
+/// calculations.
+///
+/// # Parameters
+/// * `price` - The price to invert
+/// * `decimals_a` - The number of decimals of the base token
+/// * `decimals_b` - The number of decimals of the quote token
+///
+/// # Returns
+/// * `f64` - The inverted price
+pub fn invert_price(price: f64, decimals_a: u8, decimals_b: u8) -> f64 {
+    let tick_index = price_to_tick_index(price, decimals_a, decimals_b);
+    let inverted_tick_index = invert_tick_index(tick_index);
+    tick_index_to_price(inverted_tick_index, decimals_a, decimals_b)
+}
+
+/// Convert a tick index into a price
+/// IMPORTANT: floating point operations can reduce the precision of the result.
+/// Make sure to do these operations last and not to use the result for further
+/// calculations.
+///
+/// # Parameters
+/// * `tick_index` - The tick index to convert
+/// * `decimals_a` - The number of decimals of the base token
+/// * `decimals_b` - The number of decimals of the quote token
+///
+/// # Returns
+/// * `f64` - The decimal price
+pub fn tick_index_to_price(tick_index: i32, decimals_a: u8, decimals_b: u8) -> f64 {
+    let sqrt_price = tick_index_to_sqrt_price(tick_index);
+    sqrt_price_to_price(sqrt_price, decimals_a, decimals_b)
+}
+
+/// Convert a price into a tick index
+/// IMPORTANT: floating point operations can reduce the precision of the result.
+/// Make sure to do these operations last and not to use the result for further
+/// calculations.
+///
+/// # Parameters
+/// * `price` - The price to convert
+/// * `decimals_a` - The number of decimals of the base token
+/// * `decimals_b` - The number of decimals of the quote token
+///
+/// # Returns
+/// * `i32` - The tick index
+pub fn price_to_tick_index(price: f64, decimals_a: u8, decimals_b: u8) -> i32 {
+    let sqrt_price = price_to_sqrt_price(price, decimals_a, decimals_b);
+    sqrt_price_to_tick_index(sqrt_price)
 }

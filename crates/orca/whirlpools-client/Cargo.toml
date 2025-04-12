@@ -27,6 +27,8 @@ spl-token-2022               = { workspace = true }
 solana-program-error         = { workspace = true }
 
 rust_decimal = { workspace = true, features = ["maths"] }
+ethnum       = "1.5"
+libm         = "0.2.11"
 
 anyhow    = { workspace = true }
 thiserror = { workspace = true }
@@ -40,4 +42,4 @@ base64   = { workspace = true }
 proptest = { workspace = true }
 
 [lints]
-# workspace = true
+workspace = true
