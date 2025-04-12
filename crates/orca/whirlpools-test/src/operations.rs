@@ -1,12 +1,6 @@
 use litesvm::LiteSVM;
-use program_test_utils::account::get_anchor_account;
-use solana_sdk::{
-    instruction::Instruction,
-    pubkey::Pubkey,
-    signature::{Keypair, Signer},
-    system_program,
-};
-use spl_token::ID as SPL_TOKEN_ID;
+use program_test_utils::account::{get_anchor_account, get_anchor_accounts, get_solana_account};
+use solana_sdk::pubkey::Pubkey;
 
 use crate::{
     builder::WhirlpoolsTestBuilder,
@@ -30,7 +24,7 @@ impl WhirlpoolsTest {
 
     pub fn get_whirlpool(
         &self,
-        svm: &mut LiteSVM,
+        svm: &LiteSVM,
         whirlpool: &Pubkey,
     ) -> Result<orca_whirlpools::state::Whirlpool> {
         let whirlpool_account =
@@ -42,7 +36,7 @@ impl WhirlpoolsTest {
 
     pub fn get_position(
         &self,
-        svm: &mut LiteSVM,
+        svm: &LiteSVM,
         position: &Pubkey,
     ) -> Result<orca_whirlpools::state::Position> {
         let position_account =
@@ -50,5 +44,39 @@ impl WhirlpoolsTest {
                 .ok_or(WhirlpoolsTestError::PositionNotFound)?;
 
         Ok(position_account.data)
+    }
+
+    pub fn get_tick_arrays(
+        &self,
+        svm: &LiteSVM,
+        tick_arrays: &[Pubkey],
+    ) -> Result<Vec<orca_whirlpools::state::TickArray>> {
+        let tick_arrays =
+            get_anchor_accounts::<orca_whirlpools::state::TickArray>(svm, tick_arrays)
+                .into_iter()
+                .filter_map(
+                    |account| {
+                        if let Some(account) = account {
+                            Some(account.data)
+                        } else {
+                            None
+                        }
+                    },
+                )
+                .collect();
+
+        Ok(tick_arrays)
+    }
+
+    pub fn get_token_account(
+        &self,
+        svm: &LiteSVM,
+        token_account: &Pubkey,
+    ) -> Result<spl_token::state::Account> {
+        let token_account_account =
+            get_solana_account::<spl_token::state::Account>(svm, token_account)
+                .ok_or(WhirlpoolsTestError::TokenAccountNotFound)?;
+
+        Ok(token_account_account.data)
     }
 }

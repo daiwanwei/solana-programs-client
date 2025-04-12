@@ -11,8 +11,8 @@ use spl_token::ID as SPL_TOKEN_ID;
 use crate::{
     error::{Result, WhirlpoolsTestError},
     types::{
-        CreateConfigParams, CreateFeeTierParams, CreateMintsParams, InitializeFeeTierParams,
-        InitializePoolParams, InitializeTickArraysParams,
+        CreateConfigParams, CreateMintsParams, InitializeFeeTierParams, InitializePoolParams,
+        InitializeTickArraysParams,
     },
 };
 

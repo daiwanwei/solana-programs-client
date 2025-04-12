@@ -1,7 +1,4 @@
-use solana_sdk::{
-    pubkey::Pubkey,
-    signature::{Keypair, Signer},
-};
+use solana_sdk::pubkey::Pubkey;
 
 #[derive(Clone, Debug)]
 pub struct TokenPair {

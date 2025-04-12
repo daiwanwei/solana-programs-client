@@ -57,4 +57,4 @@ program-test-utils   = { workspace = true }
 orca-whirlpools-test = { path = "." }
 
 [lints]
-# workspace = true
+workspace = true

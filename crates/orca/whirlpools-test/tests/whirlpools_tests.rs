@@ -15,7 +15,6 @@ use solana_sdk::{
 };
 
 // Constants for test values
-const INITIAL_LIQUIDITY: u128 = 1_000_000_000;
 const MAX_AMOUNT: u64 = 1_000_000_000_000_000_000;
 const INCREASE_LIQUIDITY: u128 = 10_000;
 
@@ -89,6 +88,13 @@ mod tests {
             create_fixture()?;
         update_clock(&mut svm, 1, 1000);
 
+        let a_to_b = false;
+        let is_base_input = false;
+        let specified_amount = 100;
+
+        let (amount_in, amount_out, threshold) =
+            whirlpools_test.preview_swap(&svm, specified_amount, is_base_input, a_to_b)?;
+
         let params = SwapParams {
             token_authority: user0.keypair.pubkey(),
             whirlpool: whirlpools_test.whirlpool,
@@ -96,15 +102,37 @@ mod tests {
             token_vault_a: whirlpools_test.token_vault_a,
             token_owner_account_b: user0.token_account_1,
             token_vault_b: whirlpools_test.token_vault_b,
-            amount: 10,
-            other_amount_threshold: 0,
+            amount: specified_amount,
+            other_amount_threshold: threshold,
             sqrt_price_limit: 0,
-            amount_specified_is_input: true,
-            a_to_b: false,
+            amount_specified_is_input: is_base_input,
+            a_to_b,
         };
+
+        let token_account_0_before =
+            whirlpools_test.get_token_account(&mut svm, &user0.token_account_0)?;
+        let token_account_1_before =
+            whirlpools_test.get_token_account(&mut svm, &user0.token_account_1)?;
 
         // Perform a swap
         let _unused = whirlpools_test.swap(&mut svm, &user0.keypair, params)?;
+
+        let token_account_0_after =
+            whirlpools_test.get_token_account(&mut svm, &user0.token_account_0)?;
+        let token_account_1_after =
+            whirlpools_test.get_token_account(&mut svm, &user0.token_account_1)?;
+
+        if a_to_b {
+            let amount_in_value = token_account_0_before.amount - token_account_0_after.amount;
+            let amount_out_value = token_account_1_after.amount - token_account_1_before.amount;
+            assert_eq!(amount_in, amount_in_value);
+            assert_eq!(amount_out, amount_out_value);
+        } else {
+            let amount_in_value = token_account_1_before.amount - token_account_1_after.amount;
+            let amount_out_value = token_account_0_after.amount - token_account_0_before.amount;
+            assert_eq!(amount_in, amount_in_value);
+            assert_eq!(amount_out, amount_out_value);
+        }
 
         Ok(())
     }
@@ -172,7 +200,7 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
                 token_account_b: user0.token_account_1,
                 token_vault_a: whirlpools_test.token_vault_a,
                 token_vault_b: whirlpools_test.token_vault_b,
-                liquidity: INCREASE_LIQUIDITY,
+                liquidity: 1_000_000_000,
                 token_max_a: MAX_AMOUNT,
                 token_max_b: MAX_AMOUNT,
             },

@@ -176,4 +176,44 @@ impl WhirlpoolsTest {
 
         Ok(metadata)
     }
+
+    pub fn preview_swap(
+        &self,
+        svm: &LiteSVM,
+        amount: u64,
+        is_base_input: bool,
+        a_to_b: bool,
+    ) -> Result<(u64, u64, u64)> {
+        let whirlpool = self.get_whirlpool(svm, &self.whirlpool)?;
+
+        let start_tick_index = orca_whirlpools::math::tick::get_array_start_index(
+            whirlpool.tick_current_index,
+            whirlpool.tick_spacing,
+        );
+
+        let tick_arrays = orca_whirlpools_client::utils::tick_array::get_tick_array_pubkeys(
+            self.whirlpool,
+            start_tick_index,
+            whirlpool.tick_spacing,
+            a_to_b,
+            3,
+            self.program_id,
+        );
+
+        let tick_arrays = self.get_tick_arrays(svm, &tick_arrays)?;
+
+        let slippage_tolerance = 100;
+
+        let (amount_in, amount_out, threshold) = orca_whirlpools_client::preview::preview_swap(
+            whirlpool,
+            tick_arrays,
+            slippage_tolerance,
+            amount,
+            is_base_input,
+            a_to_b,
+        )
+        .unwrap();
+
+        Ok((amount_in, amount_out, threshold))
+    }
 }

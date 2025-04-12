@@ -1,6 +1,5 @@
 use litesvm::LiteSVM;
 use orca_whirlpools::ID as WHIRLPOOLS_PROGRAM_ID;
-use rust_decimal::Decimal;
 use solana_sdk::{pubkey::Pubkey, signature::Keypair};
 
 use crate::{error::Result, operations::WhirlpoolsTest, types::*, utils::*};
@@ -86,10 +85,8 @@ impl WhirlpoolsTestBuilder {
         )?;
 
         let pool_params = self.create_pool_params.unwrap_or(CreatePoolParams {
-            sqrt_price: orca_whirlpools_client::math::price::calculate_sqrt_price_x64(
-                Decimal::from(1),
-                decimals_a,
-                decimals_b,
+            sqrt_price: orca_whirlpools_client::math::price_to_sqrt_price(
+                1.0, decimals_a, decimals_b,
             ),
         });
 
@@ -108,9 +105,9 @@ impl WhirlpoolsTestBuilder {
         )?;
 
         let current_tick =
-            orca_whirlpools::math::tick::tick_index_from_sqrt_price(&pool_params.sqrt_price);
+            orca_whirlpools_client::math::sqrt_price_to_tick_index(pool_params.sqrt_price);
 
-        let tick_start_index = orca_whirlpools::math::tick::get_array_start_index(
+        let tick_start_index = orca_whirlpools_client::math::get_tick_array_start_tick_index(
             current_tick,
             fee_tier_params.tick_spacing,
         );
@@ -123,10 +120,9 @@ impl WhirlpoolsTestBuilder {
             a_to_b: true,
         };
 
-        initialize_tick_arrays(svm, &signer, program_id, tick_arrays_params)?;
+        let _unused = initialize_tick_arrays(svm, &signer, program_id, tick_arrays_params).unwrap();
         let tick_start_index_2 = tick_start_index
-            + fee_tier_params.tick_spacing as i32
-                * orca_whirlpools::constants::TICK_ARRAY_SIZE as i32;
+            + fee_tier_params.tick_spacing as i32 * orca_whirlpools::constants::TICK_ARRAY_SIZE;
 
         let tick_arrays_params_2 = InitializeTickArraysParams {
             whirlpool,
@@ -136,7 +132,8 @@ impl WhirlpoolsTestBuilder {
             a_to_b: false,
         };
 
-        initialize_tick_arrays(svm, &signer, program_id, tick_arrays_params_2)?;
+        let _unused =
+            initialize_tick_arrays(svm, &signer, program_id, tick_arrays_params_2).unwrap();
 
         Ok(WhirlpoolsTest {
             program_id,

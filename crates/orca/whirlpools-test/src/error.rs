@@ -19,6 +19,9 @@ pub enum WhirlpoolsTestError {
     #[error("Invalid tick arrays")]
     InvalidTickArrays,
 
+    #[error("Token account not found")]
+    TokenAccountNotFound,
+
     #[error("Whirlpools client error: {0}")]
     WhirlpoolsClientError(#[from] orca_whirlpools_client::error::WhirlpoolsClientError),
 
