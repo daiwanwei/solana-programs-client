@@ -16,10 +16,12 @@ publish      = false
 resolver = "2"
 members = [
   "crates/raydium/clmm",
-  "crates/orca/whirlpools",
   "crates/raydium/clmm-client",
-
   "crates/raydium/clmm-test",
+
+  "crates/orca/whirlpools",
+  "crates/orca/whirlpools-client",
+
   "crates/test-utils",
 ]
 
@@ -63,14 +65,14 @@ solana-accounts-derive      = { package = "solana-accounts-derive", git = "https
 solana-common-core          = { package = "solana-common-core", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
 solana-deserialize          = { package = "solana-deserialize", git = "https://github.com/daiwanwei/solana-common", rev = "e811ea8" }
 
-raydium-clmm    = { path = "crates/raydium/clmm" }
-orca-whirlpools = { path = "crates/orca/whirlpools" }
+orca-whirlpools        = { path = "crates/orca/whirlpools" }
+orca-whirlpools-client = { path = "crates/orca/whirlpools-client" }
 
+raydium-clmm        = { path = "crates/raydium/clmm" }
 raydium-clmm-client = { path = "crates/raydium/clmm-client" }
+raydium-clmm-test   = { path = "crates/raydium/clmm-test" }
 
-anchor-utils       = { path = "crates/anchor-utils" }
 program-test-utils = { path = "crates/test-utils" }
-raydium-clmm-test  = { path = "crates/raydium/clmm-test" }
 
 [workspace.lints.rust]
 async_fn_in_trait = "allow"
