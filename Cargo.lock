@@ -104,7 +104,7 @@ dependencies = [
 [[package]]
 name = "anchor-discriminator-derive"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=e811ea8#e811ea8c6c2ea727ebd907fbed2432f17485dc1d"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -115,7 +115,7 @@ dependencies = [
 [[package]]
 name = "anchor-instructions-derive"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=e811ea8#e811ea8c6c2ea727ebd907fbed2432f17485dc1d"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
  "convert_case",
  "proc-macro2",
@@ -127,7 +127,7 @@ dependencies = [
 [[package]]
 name = "anchor-trait"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=e811ea8#e811ea8c6c2ea727ebd907fbed2432f17485dc1d"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
  "borsh 1.5.5",
 ]
@@ -2993,7 +2993,7 @@ dependencies = [
 [[package]]
 name = "solana-accounts-derive"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=e811ea8#e811ea8c6c2ea727ebd907fbed2432f17485dc1d"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3262,7 +3262,7 @@ dependencies = [
 [[package]]
 name = "solana-common-core"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=e811ea8#e811ea8c6c2ea727ebd907fbed2432f17485dc1d"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
  "anyhow",
  "borsh 1.5.5",
@@ -3405,7 +3405,7 @@ dependencies = [
 [[package]]
 name = "solana-deserialize"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=e811ea8#e811ea8c6c2ea727ebd907fbed2432f17485dc1d"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
  "anchor-trait",
  "borsh 1.5.5",
@@ -3655,7 +3655,7 @@ dependencies = [
 [[package]]
 name = "solana-instruction-builder"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=e811ea8#e811ea8c6c2ea727ebd907fbed2432f17485dc1d"
+source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
  "anchor-trait",
  "borsh 1.5.5",
