@@ -1033,6 +1033,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "ethnum"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b90ca2580b73ab6a1f724b76ca11ab632df820fd6040c336200d2c1df7b3c82c"
+
+[[package]]
 name = "fastrand"
 version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1663,6 +1669,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "875b3680cb2f8f71bdcf9a30f38d48282f5d3c95cbf9b3fa57269bb5d5c06828"
 
 [[package]]
+name = "libm"
+version = "0.2.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8355be11b20d696c8f18f6cc018c4e372165b1fa8126cef092399c9951984ffa"
+
+[[package]]
 name = "libsecp256k1"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2062,6 +2074,7 @@ dependencies = [
  "anyhow",
  "base64 0.22.1",
  "borsh 1.5.5",
+ "proptest",
  "solana-accounts-derive",
  "solana-common-core",
  "solana-program",
@@ -2075,6 +2088,8 @@ dependencies = [
  "anyhow",
  "base64 0.22.1",
  "borsh 1.5.5",
+ "ethnum",
+ "libm",
  "orca-whirlpools",
  "proptest",
  "rust_decimal",

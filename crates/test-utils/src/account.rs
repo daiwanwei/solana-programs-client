@@ -26,6 +26,13 @@ pub fn get_anchor_account<T: Discriminator + BorshDeserialize>(
     })
 }
 
+pub fn get_anchor_accounts<T: Discriminator + BorshDeserialize>(
+    svm: &LiteSVM,
+    pubkeys: &[Pubkey],
+) -> Vec<Option<DecodedAccount<T>>> {
+    pubkeys.iter().map(|pubkey| get_anchor_account::<T>(svm, pubkey)).collect()
+}
+
 pub fn get_solana_account<T: Pack>(svm: &LiteSVM, pubkey: &Pubkey) -> Option<DecodedAccount<T>> {
     let account = svm.get_account(pubkey)?;
 
