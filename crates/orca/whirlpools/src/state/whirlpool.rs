@@ -70,6 +70,26 @@ pub struct WhirlpoolRewardInfo {
     pub growth_global_x64: u128,
 }
 
+impl WhirlpoolRewardInfo {
+    /// Creates a new `WhirlpoolRewardInfo` with the authority set
+    pub fn new(authority: Pubkey) -> Self { Self { authority, ..Default::default() } }
+
+    /// Returns true if this reward is initialized.
+    /// Once initialized, a reward cannot transition back to uninitialized.
+    pub fn initialized(&self) -> bool { self.mint.ne(&Pubkey::default()) }
+
+    /// Maps all reward data to only the reward growth accumulators
+    pub fn to_reward_growths(
+        reward_infos: &[WhirlpoolRewardInfo; NUM_REWARDS],
+    ) -> [u128; NUM_REWARDS] {
+        let mut reward_growths = [0u128; NUM_REWARDS];
+        for i in 0..NUM_REWARDS {
+            reward_growths[i] = reward_infos[i].growth_global_x64;
+        }
+        reward_growths
+    }
+}
+
 #[derive(BorshSerialize, BorshDeserialize, Clone, Default, Copy)]
 pub struct WhirlpoolBumps {
     pub whirlpool_bump: u8,

@@ -20,6 +20,29 @@ pub struct Tick {
     pub reward_growths_outside: [u128; NUM_REWARDS], // 48 = 16 * 3
 }
 
+#[derive(Default, Debug, PartialEq)]
+pub struct TickUpdate {
+    pub initialized: bool,
+    pub liquidity_net: i128,
+    pub liquidity_gross: u128,
+    pub fee_growth_outside_a: u128,
+    pub fee_growth_outside_b: u128,
+    pub reward_growths_outside: [u128; NUM_REWARDS],
+}
+
+impl TickUpdate {
+    pub fn from(tick: &Tick) -> TickUpdate {
+        TickUpdate {
+            initialized: tick.initialized,
+            liquidity_net: tick.liquidity_net,
+            liquidity_gross: tick.liquidity_gross,
+            fee_growth_outside_a: tick.fee_growth_outside_a,
+            fee_growth_outside_b: tick.fee_growth_outside_b,
+            reward_growths_outside: tick.reward_growths_outside,
+        }
+    }
+}
+
 #[discriminator(account)]
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
 pub struct TickArray {

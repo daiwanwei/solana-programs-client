@@ -32,7 +32,8 @@ solana-common-core          = { workspace = true }
 solana-accounts-derive      = { workspace = true }
 
 [dev-dependencies]
-base64 = { workspace = true }
+base64   = { workspace = true }
+proptest = "1.0.0"
 
 [lints]
 workspace = true
