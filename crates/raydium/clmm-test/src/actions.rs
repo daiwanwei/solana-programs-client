@@ -184,6 +184,7 @@ impl RaydiumClmmTest {
 
     pub fn preview_swap_v2(&self, svm: &LiteSVM, params: SwapV2Params) -> Result<SwapState> {
         let pool_state_account = self.get_pool_state(svm)?;
+        let amm_config = self.get_amm_config(svm)?;
         let tick_array_bitmap_extension = self.get_tick_array_bitmap(svm)?;
 
         let tick_array_accounts =
@@ -206,7 +207,7 @@ impl RaydiumClmmTest {
             sqrt_price_limit_x64: params.sqrt_price_limit_x64,
             is_base_input: params.is_base_input,
             zero_for_one: params.zero_for_one,
-            protocol_fee_rate: self.fee_config.protocol_fee_rate,
+            trade_fee_rate: amm_config.trade_fee_rate,
             pool_state: pool_state_account,
             tick_array_bitmap: tick_array_bitmap_extension,
             tick_array_accounts: tick_arrays,

@@ -42,6 +42,12 @@ impl TickArrayState {
             (current_tick_index - self.start_tick_index) / i32::from(tick_spacing);
 
         if zero_for_one {
+            // Note: different from the original clmm, we need to check if the
+            // offset_in_array is 0
+            if offset_in_array == 0 {
+                return Ok(None);
+            }
+
             while offset_in_array >= 0 {
                 if self.ticks[offset_in_array as usize].is_initialized() {
                     return Ok(Some(self.ticks[offset_in_array as usize].clone()));

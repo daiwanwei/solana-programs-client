@@ -57,7 +57,7 @@ impl Default for CreateAmmConfigParams {
         Self {
             config_index: 0,
             tick_spacing: 1,
-            trade_fee_rate: 0,
+            trade_fee_rate: 1,
             protocol_fee_rate: 0,
             fund_fee_rate: 0,
         }

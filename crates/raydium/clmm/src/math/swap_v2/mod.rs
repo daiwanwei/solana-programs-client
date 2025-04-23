@@ -158,7 +158,6 @@ pub fn compute_swap(
         remaining_amount: cache.remaining_amount,
         amount_calculated: cache.amount_calculated,
     };
-
     Ok((state, tick_array_indices))
 }
 
@@ -372,10 +371,7 @@ fn update_cache_from_swap_step(
     cache.initialized = next_tick.is_initialized();
     cache.sqrt_price_x64 = step.sqrt_price_next_x64;
 
-    cache.amount_in = cache
-        .amount_in
-        .checked_add(step.amount_in + step.fee_amount)
-        .ok_or(SwapError::MathOverflow)?;
+    cache.amount_in = cache.amount_in.checked_add(step.amount_in).ok_or(SwapError::MathOverflow)?;
     cache.amount_out =
         cache.amount_out.checked_add(step.amount_out).ok_or(SwapError::MathOverflow)?;
 

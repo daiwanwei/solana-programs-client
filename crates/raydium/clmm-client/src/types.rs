@@ -109,7 +109,7 @@ pub struct PreviewSwapV2Params {
     pub sqrt_price_limit_x64: u128,
     pub is_base_input: bool,
     pub zero_for_one: bool,
-    pub protocol_fee_rate: u32,
+    pub trade_fee_rate: u32,
     pub pool_state: PoolState,
     pub tick_array_bitmap: TickArrayBitmapExtension,
     pub tick_array_accounts: VecDeque<TickArrayState>,

@@ -88,11 +88,12 @@ mod tests {
         let Fixture { clmm_test, mut svm, admin: _, user0, user1: _, user2: _ } = create_fixture()?;
         update_clock(&mut svm, 1, 1000);
         let zero_for_one = false;
+        let is_base_input = true;
         let params = SwapV2Params {
-            amount: 10023,
+            amount: 10000,
             other_amount_threshold: 0,
             sqrt_price_limit_x64: 0,
-            is_base_input: true,
+            is_base_input,
             zero_for_one,
             user_token_account_0: user0.token_account_0,
             user_token_account_1: user0.token_account_1,
@@ -198,7 +199,8 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
         create_user(&mut svm, &admin, &clmm_test.token_pair.mint_0, &clmm_test.token_pair.mint_1);
 
     // Define different tick ranges
-    let tick_ranges = [(-120, -60), (-60, -30), (0, 23), (1, 50), (-30, 30), (30, 60), (60, 120)];
+    let tick_ranges =
+        [(-120, -60), (-60, -30), (-10, 0), (0, 23), (1, 50), (-30, 30), (30, 60), (60, 120)];
 
     let mut position_nft_mints = Vec::new();
 

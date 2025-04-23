@@ -31,6 +31,9 @@ pub enum ClmmTestError {
 
     #[error("Token account not found")]
     TokenAccountNotFound,
+
+    #[error("Amm config not found")]
+    AmmConfigNotFound,
 }
 
 impl From<litesvm::types::FailedTransactionMetadata> for ClmmTestError {

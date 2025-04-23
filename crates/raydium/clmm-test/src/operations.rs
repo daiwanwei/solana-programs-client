@@ -22,6 +22,12 @@ pub struct RaydiumClmmTest {
 }
 
 impl RaydiumClmmTest {
+    pub fn get_amm_config(&self, svm: &LiteSVM) -> Result<state::AmmConfig> {
+        get_anchor_account::<state::AmmConfig>(svm, &self.amm_config)
+            .ok_or(ClmmTestError::AmmConfigNotFound.into())
+            .map(|account| account.data)
+    }
+
     pub fn get_pool_state(&self, svm: &LiteSVM) -> Result<state::PoolState> {
         get_anchor_account::<state::PoolState>(svm, &self.pool_state)
             .ok_or(ClmmTestError::PoolStateNotFound.into())

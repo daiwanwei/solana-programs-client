@@ -77,12 +77,9 @@ pub fn compute_swap_step_by_specified_amount_in(
 
     let (sqrt_price_next_x64, amount_in, fee_amount) =
         if amount_remaining_without_fee >= amount_in_to_target {
-            (
-                sqrt_price_target_x64,
-                amount_in_to_target,
-                calculate_fee(amount_in_to_target, fee_rate, true)
-                    .context(CalculateFeeOverflowSnafu)?,
-            )
+            let fee = calculate_fee(amount_in_to_target, fee_rate, true)
+                .context(CalculateFeeOverflowSnafu)?;
+            (sqrt_price_target_x64, amount_in_to_target + fee, fee)
         } else {
             (
                 sqrt_price::get_next_sqrt_price_from_input(
@@ -91,7 +88,7 @@ pub fn compute_swap_step_by_specified_amount_in(
                     amount_remaining_without_fee,
                     zero_for_one,
                 ),
-                amount_remaining_without_fee,
+                amount_remaining,
                 u64::from(amount_remaining)
                     .checked_sub(amount_remaining_without_fee)
                     .context(MathOverflowSnafu)?,
