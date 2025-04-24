@@ -24,3 +24,6 @@ dist/
 
 # proptest
 proptest-regressions/
+
+# # generated files
+# generated/

@@ -8,4 +8,13 @@ pub mod math;
 pub mod state;
 pub mod utils;
 
-solana_program::declare_id!("whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc");
+#[allow(unused_imports)]
+#[allow(unused_qualifications)]
+#[rustfmt::skip]
+pub mod generated;
+
+pub use generated::programs::{WHIRLPOOL_ID as ID, WHIRLPOOL_ID};
+#[cfg(feature = "fetch")]
+pub use generated::shared::*;
+#[cfg(feature = "fetch")]
+pub(crate) use generated::*;
