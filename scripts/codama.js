@@ -24,10 +24,30 @@ pathMap.set("orca-whirlpool", {
   output: "./crates/orca/whirlpools/src/generated",
 });
 
+pathMap.set("meteora-dlmm", {
+  idl: "./idls/meteora-dlmm.json",
+  output: "./crates/meteora/dlmm/src/generated",
+});
+
+pathMap.set("raydium-clmm", {
+  idl: "./idls/raydium-clmm.json",
+  output: "./crates/raydium/clmm/src/generated",
+});
+
 const metadataMap = new Map();
 
 metadataMap.set("orca-whirlpool", {
   address: "whirLbMiicVdio4qvUfM5KAg6Ct8VwpYzGff3uctyCc",
+  origin: "anchor",
+});
+
+metadataMap.set("meteora-dlmm", {
+  address: "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo",
+  origin: "anchor",
+});
+
+metadataMap.set("raydium-clmm", {
+  address: "CAMMCzo5YL8w4VFF8KVHrK22GGUsp5VTaW7grrKgrWqK",
   origin: "anchor",
 });
 

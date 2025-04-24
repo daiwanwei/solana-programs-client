@@ -17,15 +17,40 @@ crate-type = ["cdylib", "lib"]
 name       = "raydium_clmm"
 
 [features]
-default      = ["enable-power"]
-enable-power = ["uint/enable-power"]
+default          = ["enable-power"]
+enable-power     = ["uint/enable-power"]
+anchor           = ["dep:anchor-lang"]
+anchor-idl-build = []
+serde            = ["dep:serde", "dep:serde_with", "dep:serde-big-array"]
+fetch            = ["dep:solana-client", "dep:solana-sdk", "dep:solana-account-decoder"]
+solana-v1        = []
 
 [dependencies]
-borsh                = { workspace = true }
-solana-program       = { workspace = true }
-solana-program-error = { workspace = true }
+borsh = { workspace = true }
 
-snafu = { workspace = true }
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+snafu     = { workspace = true }
+
+anchor-lang = { workspace = true, optional = true }
+
+num-derive             = { workspace = true }
+num-traits             = { workspace = true }
+serde                  = { workspace = true, features = ["derive"], optional = true }
+serde_with             = { workspace = true, optional = true }
+serde-big-array        = { workspace = true, optional = true }
+solana-program         = { workspace = true }
+solana-sdk             = { workspace = true, optional = true }
+solana-client          = { workspace = true, optional = true }
+solana-account-decoder = { workspace = true, optional = true }
+
+# borsh = { workspace = true }
+
+# anchor-lang          = { workspace = true, optional = true }
+# solana-program       = { workspace = true }
+# solana-program-error = { workspace = true }
+
+# snafu = { workspace = true }
 
 anchor-trait                = { workspace = true }
 anchor-discriminator-derive = { workspace = true }

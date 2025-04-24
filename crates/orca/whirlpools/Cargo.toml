@@ -17,7 +17,7 @@ crate-type = ["cdylib", "lib"]
 name       = "orca_whirlpools"
 
 [features]
-default          = ["fetch"]
+default          = []
 anchor           = ["dep:anchor-lang"]
 anchor-idl-build = []
 serde            = ["dep:serde", "dep:serde_with", "dep:serde-big-array"]
@@ -25,18 +25,19 @@ fetch            = ["dep:solana-client", "dep:solana-sdk", "dep:solana-account-d
 solana-v1        = []
 
 [dependencies]
-borsh          = { workspace = true }
-solana-program = { workspace = true }
+borsh = { workspace = true }
 
 anyhow    = { workspace = true }
 thiserror = { workspace = true }
 
-anchor-lang            = { workspace = true, optional = true }
+anchor-lang = { workspace = true, optional = true }
+
 num-derive             = { workspace = true }
 num-traits             = { workspace = true }
 serde                  = { workspace = true, features = ["derive"], optional = true }
 serde_with             = { workspace = true, optional = true }
 serde-big-array        = { workspace = true, optional = true }
+solana-program         = { workspace = true }
 solana-sdk             = { workspace = true, optional = true }
 solana-client          = { workspace = true, optional = true }
 solana-account-decoder = { workspace = true, optional = true }

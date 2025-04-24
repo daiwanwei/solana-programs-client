@@ -9,7 +9,9 @@
     "format": "cargo clippy --fix --allow-dirty --allow-staged && cargo fmt",
     "lint": "cargo clippy && cargo fmt --check",
     "clean": "cargo clean",
-    "generate:idl:orca-whirlpool": "node ./scripts/codama.js -p orca-whirlpool"
+    "generate:idl:orca-whirlpool": "node ./scripts/codama.js -p orca-whirlpool",
+    "generate:idl:meteora-dlmm": "node ./scripts/codama.js -p meteora-dlmm",
+    "generate:idl:raydium-clmm": "node ./scripts/codama.js -p raydium-clmm"
   },
   "devDependencies": {
     "@codama/nodes-from-anchor": "^1.1.11",

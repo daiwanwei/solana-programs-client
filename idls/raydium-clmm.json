@@ -707,8 +707,7 @@
           { "name": "Ended" }
         ]
       }
-    },
-    { "name": "TickArryBitmap", "type": { "kind": "alias", "value": { "array": ["u64", 8] } } }
+    }
   ],
   "events": [
     {
