@@ -1,4 +1,4 @@
-use solana_sdk::pubkey::Pubkey;
+use solana_sdk::{pubkey::Pubkey, signature::Keypair};
 
 #[derive(Clone, Debug)]
 pub struct TokenPair {
@@ -49,19 +49,15 @@ pub struct InitializeTickArraysParams {
 #[derive(Clone, Debug, Default)]
 pub struct OpenPositionParams {
     pub owner: Pubkey,
-    pub whirlpool: Pubkey,
     pub tick_lower_index: i32,
     pub tick_upper_index: i32,
 }
 
 pub struct IncreaseLiquidityParams {
     pub nft_owner: Pubkey,
-    pub whirlpool: Pubkey,
     pub position_nft_mint: Pubkey,
     pub token_account_a: Pubkey,
     pub token_account_b: Pubkey,
-    pub token_vault_a: Pubkey,
-    pub token_vault_b: Pubkey,
     pub liquidity: u128,
     pub token_max_a: u64,
     pub token_max_b: u64,
@@ -69,13 +65,9 @@ pub struct IncreaseLiquidityParams {
 
 pub struct DecreaseLiquidityParams {
     pub nft_owner: Pubkey,
-    pub whirlpool: Pubkey,
     pub position_nft_mint: Pubkey,
-    pub position: Pubkey,
     pub tick_array_lower: Pubkey,
     pub tick_array_upper: Pubkey,
-    pub token_vault_a: Pubkey,
-    pub token_vault_b: Pubkey,
     pub recipient_token_account_a: Pubkey,
     pub recipient_token_account_b: Pubkey,
     pub liquidity: u128,
@@ -85,11 +77,8 @@ pub struct DecreaseLiquidityParams {
 
 pub struct SwapParams {
     pub token_authority: Pubkey,
-    pub whirlpool: Pubkey,
     pub token_owner_account_a: Pubkey,
-    pub token_vault_a: Pubkey,
     pub token_owner_account_b: Pubkey,
-    pub token_vault_b: Pubkey,
     pub amount: u64,
     pub other_amount_threshold: u64,
     pub sqrt_price_limit: u128,
@@ -148,4 +137,57 @@ impl Default for CreateFeeTierParams {
 #[derive(Clone, Debug, Default)]
 pub struct CreatePoolParams {
     pub sqrt_price: u128,
+}
+
+#[derive(Clone, Debug)]
+pub struct CreateWhirlPoolTesterParams {
+    pub program_id: Pubkey,
+    pub whirlpool_config: Pubkey,
+    pub fee_tier: Pubkey,
+    pub whirlpool: Pubkey,
+    pub token_pair: TokenPair,
+    pub token_vault_a: Pubkey,
+    pub token_vault_b: Pubkey,
+    pub tick_spacing: u16,
+}
+
+#[derive(Clone, Debug)]
+pub struct WhirlpoolConfigFixture {
+    pub whirlpool_config: Pubkey,
+    pub fee_tier_list: Vec<FeeTierInfo>,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct FeeTierInfo {
+    pub fee_tier: Pubkey,
+    pub tick_spacing: u16,
+    pub default_fee_rate: u16,
+}
+
+#[derive(Clone, Debug)]
+pub struct WhirlpoolFixture {
+    pub program_id: Pubkey,
+    pub whirlpool_config: Pubkey,
+    pub fee_tier: Pubkey,
+    pub whirlpool: Pubkey,
+    pub token_pair: TokenPair,
+    pub token_vault_a: Pubkey,
+    pub token_vault_b: Pubkey,
+    pub tick_spacing: u16,
+}
+
+#[derive(Clone, Debug, Default)]
+pub struct SetupTickArraysParams {
+    pub whirlpool: Pubkey,
+    pub start_tick: i32,
+    pub tick_spacing: u16,
+    pub a_to_b: bool,
+    pub array_count: u32,
+}
+
+#[derive(Debug)]
+pub struct User {
+    pub keypair: Keypair,
+    pub token_account_0: Pubkey,
+    pub token_account_1: Pubkey,
 }

@@ -1,18 +1,15 @@
 use litesvm::LiteSVM;
 use orca_whirlpools::ID;
 use orca_whirlpools_test::{
-    builder::WhirlpoolsTestBuilder,
-    operations::WhirlpoolsTest,
-    types::{IncreaseLiquidityParams, OpenPositionParams, SwapParams},
+    fixture::{setup_user, WhirlpoolConfigFixtureBuilder, WhirlpoolFixtureBuilder},
+    tester::WhirlpoolsTester,
+    types::{
+        CreateFeeTierParams, CreateWhirlPoolTesterParams, IncreaseLiquidityParams,
+        OpenPositionParams, SwapParams, User, WhirlpoolConfigFixture, WhirlpoolFixture,
+    },
 };
-use program_test_utils::{
-    svm::update_clock,
-    token::{get_or_create_ata, mint_to},
-};
-use solana_sdk::{
-    pubkey::Pubkey,
-    signature::{Keypair, Signer},
-};
+use program_test_utils::svm::update_clock;
+use solana_sdk::signature::{Keypair, Signer};
 
 // Constants for test values
 const MAX_AMOUNT: u64 = 1_000_000_000_000_000_000;
@@ -24,17 +21,15 @@ mod tests {
 
     #[test]
     fn test_open_position() -> Result<(), Box<dyn std::error::Error>> {
-        let Fixture { whirlpools_test, mut svm, admin: _, user0, user1: _, user2: _ } =
-            create_fixture()?;
+        let Fixture { whirlpools_tester, mut svm, user0, .. } = create_fixture()?;
         update_clock(&mut svm, 1, 1000);
 
         // Test opening a position in the middle range
-        let _unused = whirlpools_test.open_position(
+        let _unused = whirlpools_tester.open_position(
             &mut svm,
             &user0.keypair,
             OpenPositionParams {
                 owner: user0.keypair.pubkey(),
-                whirlpool: whirlpools_test.whirlpool,
                 tick_lower_index: -30,
                 tick_upper_index: 30,
             },
@@ -45,34 +40,29 @@ mod tests {
 
     #[test]
     fn test_increase_liquidity() -> Result<(), Box<dyn std::error::Error>> {
-        let Fixture { whirlpools_test, mut svm, admin: _, user0, user1: _, user2: _ } =
-            create_fixture()?;
+        let Fixture { whirlpools_tester, mut svm, user0, .. } = create_fixture()?;
         update_clock(&mut svm, 1, 1000);
 
         // First open a position
-        let (position_nft_mint, ..) = whirlpools_test.open_position(
+        let (position_nft_mint, ..) = whirlpools_tester.open_position(
             &mut svm,
             &user0.keypair,
             OpenPositionParams {
                 owner: user0.keypair.pubkey(),
-                whirlpool: whirlpools_test.whirlpool,
                 tick_lower_index: -30,
                 tick_upper_index: 30,
             },
         )?;
 
         // Then increase liquidity
-        let _unused = whirlpools_test.increase_liquidity(
+        let _unused = whirlpools_tester.increase_liquidity(
             &mut svm,
             &user0.keypair,
             IncreaseLiquidityParams {
                 nft_owner: user0.keypair.pubkey(),
-                whirlpool: whirlpools_test.whirlpool,
                 position_nft_mint,
                 token_account_a: user0.token_account_0,
                 token_account_b: user0.token_account_1,
-                token_vault_a: whirlpools_test.token_vault_a,
-                token_vault_b: whirlpools_test.token_vault_b,
                 liquidity: INCREASE_LIQUIDITY,
                 token_max_a: MAX_AMOUNT,
                 token_max_b: MAX_AMOUNT,
@@ -84,8 +74,7 @@ mod tests {
 
     #[test]
     fn test_swap() -> Result<(), Box<dyn std::error::Error>> {
-        let Fixture { whirlpools_test, mut svm, admin: _, user0, user1: _, user2: _ } =
-            create_fixture()?;
+        let Fixture { whirlpools_tester, mut svm, user0, .. } = create_fixture()?;
         update_clock(&mut svm, 1, 1000);
 
         let a_to_b = false;
@@ -93,15 +82,12 @@ mod tests {
         let specified_amount = 100;
 
         let (amount_in, amount_out, threshold) =
-            whirlpools_test.preview_swap(&svm, specified_amount, is_base_input, a_to_b)?;
+            whirlpools_tester.preview_swap(&svm, specified_amount, is_base_input, a_to_b)?;
 
         let params = SwapParams {
             token_authority: user0.keypair.pubkey(),
-            whirlpool: whirlpools_test.whirlpool,
             token_owner_account_a: user0.token_account_0,
-            token_vault_a: whirlpools_test.token_vault_a,
             token_owner_account_b: user0.token_account_1,
-            token_vault_b: whirlpools_test.token_vault_b,
             amount: specified_amount,
             other_amount_threshold: threshold,
             sqrt_price_limit: 0,
@@ -110,17 +96,17 @@ mod tests {
         };
 
         let token_account_0_before =
-            whirlpools_test.get_token_account(&mut svm, &user0.token_account_0)?;
+            whirlpools_tester.get_token_account(&mut svm, &user0.token_account_0)?;
         let token_account_1_before =
-            whirlpools_test.get_token_account(&mut svm, &user0.token_account_1)?;
+            whirlpools_tester.get_token_account(&mut svm, &user0.token_account_1)?;
 
         // Perform a swap
-        let _unused = whirlpools_test.swap(&mut svm, &user0.keypair, params)?;
+        let _unused = whirlpools_tester.swap(&mut svm, &user0.keypair, params)?;
 
         let token_account_0_after =
-            whirlpools_test.get_token_account(&mut svm, &user0.token_account_0)?;
+            whirlpools_tester.get_token_account(&mut svm, &user0.token_account_0)?;
         let token_account_1_after =
-            whirlpools_test.get_token_account(&mut svm, &user0.token_account_1)?;
+            whirlpools_tester.get_token_account(&mut svm, &user0.token_account_1)?;
 
         if a_to_b {
             let amount_in_value = token_account_0_before.amount - token_account_0_after.amount;
@@ -146,98 +132,74 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
     let admin = Keypair::new();
     let _unused = svm.airdrop(&admin.pubkey(), 1_000_000_000_000).unwrap();
 
-    let whirlpools_test = WhirlpoolsTestBuilder::new().build(&mut svm, &admin)?;
+    let fee_tier_params = vec![CreateFeeTierParams { tick_spacing: 1, default_fee_rate: 0 }];
 
-    // Define different tick ranges
-    let tick_ranges = [(-120, -60), (-60, -30), (0, 23), (1, 50), (-30, 30), (30, 60), (60, 120)];
+    let whirlpool_config_fixture = WhirlpoolConfigFixtureBuilder::new()
+        .with_fee_tier_params(fee_tier_params)
+        .build(&mut svm, &admin)?;
 
-    let mut position_nft_mints = Vec::new();
-
-    let user0 = create_user(
+    let whirlpool_fixture = WhirlpoolFixtureBuilder::new().build(
         &mut svm,
         &admin,
-        &whirlpools_test.token_pair.mint_a,
-        &whirlpools_test.token_pair.mint_b,
-    );
+        whirlpool_config_fixture.whirlpool_config,
+        whirlpool_config_fixture.fee_tier_list[0].fee_tier,
+        whirlpool_config_fixture.fee_tier_list[0].tick_spacing,
+    )?;
 
-    let user1 = create_user(
+    let whirlpool_fixture_clone = whirlpool_fixture.clone();
+
+    let whirlpools_tester = WhirlpoolsTester::new(CreateWhirlPoolTesterParams {
+        program_id,
+        whirlpool_config: whirlpool_fixture_clone.whirlpool_config,
+        fee_tier: whirlpool_fixture_clone.fee_tier,
+        whirlpool: whirlpool_fixture_clone.whirlpool,
+        token_pair: whirlpool_fixture_clone.token_pair,
+        token_vault_a: whirlpool_fixture_clone.token_vault_a,
+        token_vault_b: whirlpool_fixture_clone.token_vault_b,
+        tick_spacing: whirlpool_fixture_clone.tick_spacing,
+    });
+
+    let user0 = setup_user(
         &mut svm,
         &admin,
-        &whirlpools_test.token_pair.mint_a,
-        &whirlpools_test.token_pair.mint_b,
+        &whirlpool_fixture.token_pair.mint_a,
+        &whirlpool_fixture.token_pair.mint_b,
     );
 
-    let user2 = create_user(
+    let user1 = setup_user(
         &mut svm,
         &admin,
-        &whirlpools_test.token_pair.mint_a,
-        &whirlpools_test.token_pair.mint_b,
+        &whirlpool_fixture.token_pair.mint_a,
+        &whirlpool_fixture.token_pair.mint_b,
     );
 
-    // Open positions in different ranges
-    for (tick_lower, tick_upper) in tick_ranges {
-        let (position_nft_mint, ..) = whirlpools_test.open_position(
-            &mut svm,
-            &user0.keypair,
-            OpenPositionParams {
-                owner: user0.keypair.pubkey(),
-                whirlpool: whirlpools_test.whirlpool,
-                tick_lower_index: tick_lower,
-                tick_upper_index: tick_upper,
-            },
-        )?;
+    let user2 = setup_user(
+        &mut svm,
+        &admin,
+        &whirlpool_fixture.token_pair.mint_a,
+        &whirlpool_fixture.token_pair.mint_b,
+    );
 
-        update_clock(&mut svm, 1, 1000);
-
-        let _unused = whirlpools_test.increase_liquidity(
-            &mut svm,
-            &user0.keypair,
-            IncreaseLiquidityParams {
-                nft_owner: user0.keypair.pubkey(),
-                whirlpool: whirlpools_test.whirlpool,
-                position_nft_mint,
-                token_account_a: user0.token_account_0,
-                token_account_b: user0.token_account_1,
-                token_vault_a: whirlpools_test.token_vault_a,
-                token_vault_b: whirlpools_test.token_vault_b,
-                liquidity: 1_000_000_000,
-                token_max_a: MAX_AMOUNT,
-                token_max_b: MAX_AMOUNT,
-            },
-        )?;
-
-        position_nft_mints.push(position_nft_mint);
-    }
-
-    Ok(Fixture { whirlpools_test, svm, admin, user0, user1, user2 })
-}
-
-fn create_user(svm: &mut LiteSVM, admin: &Keypair, mint_a: &Pubkey, mint_b: &Pubkey) -> User {
-    let user = Keypair::new();
-    let _unused = svm.airdrop(&user.pubkey(), 1_000_000_000).unwrap();
-    let (token_account_0, _) = get_or_create_ata(svm, admin, mint_a, &user.pubkey()).unwrap();
-    let (token_account_1, _) = get_or_create_ata(svm, admin, mint_b, &user.pubkey()).unwrap();
-
-    let _unused =
-        mint_to(svm, admin, mint_a, &token_account_0, &[admin], 1_000_000_000_000_000_000).unwrap();
-    let _unused =
-        mint_to(svm, admin, mint_b, &token_account_1, &[admin], 1_000_000_000_000_000_000).unwrap();
-
-    User { keypair: user, token_account_0, token_account_1 }
+    Ok(Fixture {
+        whirlpool_config_fixture,
+        whirlpool_fixture,
+        whirlpools_tester,
+        svm,
+        admin,
+        user0,
+        user1,
+        user2,
+    })
 }
 
 #[allow(dead_code)]
 struct Fixture {
-    whirlpools_test: WhirlpoolsTest,
+    whirlpool_config_fixture: WhirlpoolConfigFixture,
+    whirlpool_fixture: WhirlpoolFixture,
+    whirlpools_tester: WhirlpoolsTester,
     svm: LiteSVM,
     admin: Keypair,
     user0: User,
     user1: User,
     user2: User,
-}
-
-struct User {
-    keypair: Keypair,
-    token_account_0: Pubkey,
-    token_account_1: Pubkey,
 }

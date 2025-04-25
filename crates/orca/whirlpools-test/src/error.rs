@@ -27,6 +27,9 @@ pub enum WhirlpoolsTestError {
 
     #[error("Failed transaction metadata")]
     FailedTransactionMetadata,
+
+    #[error("Program account not found")]
+    ProgramAccountNotFound,
 }
 
 impl From<litesvm::types::FailedTransactionMetadata> for WhirlpoolsTestError {
