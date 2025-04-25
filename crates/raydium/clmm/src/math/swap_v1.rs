@@ -4,11 +4,11 @@ use snafu::{ResultExt, Snafu};
 
 use crate::{
     constants::FEE_RATE_DENOMINATOR_VALUE,
-    math::{full_math::MulDiv, liquidity, sqrt_price, tick},
-    state::{
-        PoolState, PoolStateError, TickArrayBitmapExtension, TickArrayState, TickState,
-        TickStateError,
+    generated::{
+        accounts::{PoolState, TickArrayBitmapExtension, TickArrayState},
+        types::TickState,
     },
+    math::{full_math::MulDiv, liquidity, sqrt_price, tick},
 };
 
 pub const MAX_SWAP_STEP_COUNT: u32 = 88;
@@ -484,14 +484,26 @@ fn process_next_tick(
 ) -> Result<Box<TickState>> {
     match tick_array
         .next_initialized_tick(current_tick, pool_state.tick_spacing, zero_for_one)
-        .context(TickStateSnafu)?
+        .map_err(|_| SwapError::TickState)?
     {
         Some(tick_state) => Ok(Box::new(tick_state)),
         None if !*tick_match_current => {
             *tick_match_current = true;
-            Ok(Box::new(tick_array.first_initialized_tick(zero_for_one).context(TickStateSnafu)?))
+            Ok(Box::new(
+                tick_array
+                    .first_initialized_tick(zero_for_one)
+                    .map_err(|_| SwapError::TickState)?,
+            ))
         }
-        None => Ok(Box::new(TickState::default())),
+        None => Ok(Box::new(TickState {
+            tick: 0,
+            liquidity_net: 0,
+            liquidity_gross: 0,
+            fee_growth_outside0_x64: 0,
+            fee_growth_outside1_x64: 0,
+            reward_growths_outside_x64: [0; 3],
+            padding: [0; 13],
+        })),
     }
 }
 
@@ -509,7 +521,7 @@ fn handle_uninitialized_tick(
             current_index,
             zero_for_one,
         )
-        .context(PoolStateSnafu)?
+        .map_err(|_| SwapError::PoolState)?
         .ok_or(SwapError::TickArrayStartTickIndexOutOfRangeLimit)?;
 
     let next_array = tick_arrays.pop_front().ok_or(SwapError::NoMoreTickArraysAvailable)?;
@@ -519,7 +531,8 @@ fn handle_uninitialized_tick(
     }
 
     indices.push_back(next_array.start_tick_index);
-    let first_tick = next_array.first_initialized_tick(zero_for_one).context(TickStateSnafu)?;
+    let first_tick =
+        next_array.first_initialized_tick(zero_for_one).map_err(|_| SwapError::TickState)?;
 
     Ok((next_array, Box::new(first_tick)))
 }
@@ -623,11 +636,11 @@ pub enum SwapError {
     #[snafu(display("Tick error: {}", source))]
     Tick { source: tick::TickError },
 
-    #[snafu(display("Tick state error: {}", source))]
-    TickState { source: TickStateError },
+    #[snafu(display("Tick state error"))]
+    TickState,
 
-    #[snafu(display("Pool state error: {}", source))]
-    PoolState { source: PoolStateError },
+    #[snafu(display("Pool state error"))]
+    PoolState,
 
     #[snafu(display("Math overflow"))]
     MathOverflow,

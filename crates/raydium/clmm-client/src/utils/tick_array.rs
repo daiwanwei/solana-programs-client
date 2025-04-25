@@ -1,5 +1,5 @@
 use raydium_clmm::{
-    state::{PoolState, TickArrayBitmapExtension},
+    generated::accounts::{PoolState, TickArrayBitmapExtension},
     utils::derive::derive_tick_array_pubkey,
 };
 use solana_program::pubkey::Pubkey;

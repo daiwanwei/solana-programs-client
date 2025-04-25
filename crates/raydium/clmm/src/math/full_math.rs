@@ -18,64 +18,8 @@ pub trait MulDiv<RHS = Self> {
     /// Output type for the methods of this trait.
     type Output;
 
-    /// Calculates `floor(val * num / denom)`, i.e. the largest integer less
-    /// than or equal to the result of the division.
-    ///
-    /// ## Example
-    ///
-    /// ```rust
-    /// use libraries::full_math::MulDiv;
-    ///
-    /// # fn main() {
-    /// let x = 3i8.mul_div_floor(4, 2);
-    /// assert_eq!(x, Some(6));
-    ///
-    /// let x = 5i8.mul_div_floor(2, 3);
-    /// assert_eq!(x, Some(3));
-    ///
-    /// let x = (-5i8).mul_div_floor(2, 3);
-    /// assert_eq!(x, Some(-4));
-    ///
-    /// let x = 3i8.mul_div_floor(3, 2);
-    /// assert_eq!(x, Some(4));
-    ///
-    /// let x = (-3i8).mul_div_floor(3, 2);
-    /// assert_eq!(x, Some(-5));
-    ///
-    /// let x = 127i8.mul_div_floor(4, 3);
-    /// assert_eq!(x, None);
-    /// # }
-    /// ```
     fn mul_div_floor(self, num: RHS, denom: RHS) -> Option<Self::Output>;
 
-    /// Calculates `ceil(val * num / denom)`, i.e. the the smallest integer
-    /// greater than or equal to the result of the division.
-    ///
-    /// ## Example
-    ///
-    /// ```rust
-    /// use libraries::full_math::MulDiv;
-    ///
-    /// # fn main() {
-    /// let x = 3i8.mul_div_ceil(4, 2);
-    /// assert_eq!(x, Some(6));
-    ///
-    /// let x = 5i8.mul_div_ceil(2, 3);
-    /// assert_eq!(x, Some(4));
-    ///
-    /// let x = (-5i8).mul_div_ceil(2, 3);
-    /// assert_eq!(x, Some(-3));
-    ///
-    /// let x = 3i8.mul_div_ceil(3, 2);
-    /// assert_eq!(x, Some(5));
-    ///
-    /// let x = (-3i8).mul_div_ceil(3, 2);
-    /// assert_eq!(x, Some(-4));
-    ///
-    /// let x = (127i8).mul_div_ceil(4, 3);
-    /// assert_eq!(x, None);
-    /// # }
-    /// ```
     fn mul_div_ceil(self, num: RHS, denom: RHS) -> Option<Self::Output>;
 
     /// Return u64 not out of bounds

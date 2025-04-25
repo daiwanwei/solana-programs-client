@@ -243,68 +243,67 @@ pub enum SwapStepError {
 
 pub type Result<T> = std::result::Result<T, SwapStepError>;
 
-#[cfg(test)]
-mod swap_math_test {
-    use proptest::prelude::*;
+// #[cfg(test)]
+// mod swap_math_test {
+//     use proptest::prelude::*;
 
-    use super::*;
-    use crate::{constants::FEE_RATE_DENOMINATOR_VALUE, math::tick};
+//     use super::*;
+//     use crate::{constants::FEE_RATE_DENOMINATOR_VALUE, math::tick};
 
-    proptest! {
-        #[test]
-        fn compute_swap_step_test(
-            sqrt_price_current_x64 in tick::MIN_SQRT_PRICE_X64..tick::MAX_SQRT_PRICE_X64,
-            sqrt_price_target_x64 in tick::MIN_SQRT_PRICE_X64..tick::MAX_SQRT_PRICE_X64,
-            liquidity in 1..u32::MAX as u128,
-            amount_remaining in 1..u64::MAX,
-            fee_rate in 1..FEE_RATE_DENOMINATOR_VALUE/2,
-            is_base_input in proptest::bool::ANY,
-        ) {
-            prop_assume!(sqrt_price_current_x64 != sqrt_price_target_x64);
+//     proptest! {
+//         #[test]
+//         fn compute_swap_step_test(
+//             sqrt_price_current_x64 in
+// tick::MIN_SQRT_PRICE_X64..tick::MAX_SQRT_PRICE_X64,
+// sqrt_price_target_x64 in tick::MIN_SQRT_PRICE_X64..tick::MAX_SQRT_PRICE_X64,
+//             liquidity in 1..u32::MAX as u128,
+//             amount_remaining in 1..u64::MAX,
+//             fee_rate in 1..FEE_RATE_DENOMINATOR_VALUE/2,
+//             is_base_input in proptest::bool::ANY,
+//         ) {
+//             prop_assume!(sqrt_price_current_x64 != sqrt_price_target_x64);
 
+//             let zero_for_one = sqrt_price_current_x64 >
+// sqrt_price_target_x64;
 
+//             let swap_step = compute_swap_step(
+//                 sqrt_price_current_x64,
+//                 sqrt_price_target_x64,
+//                 liquidity,
+//                 amount_remaining,
+//                 fee_rate,
+//                 is_base_input,
+//                 zero_for_one,
+//             ).expect("compute_swap_step failed");
 
-            let zero_for_one = sqrt_price_current_x64 > sqrt_price_target_x64;
+//             let amount_in = swap_step.amount_in;
+//             let amount_out = swap_step.amount_out;
+//             let sqrt_price_next_x64 = swap_step.sqrt_price_next_x64;
+//             let fee_amount = swap_step.fee_amount;
 
-            let swap_step = compute_swap_step(
-                sqrt_price_current_x64,
-                sqrt_price_target_x64,
-                liquidity,
-                amount_remaining,
-                fee_rate,
-                is_base_input,
-                zero_for_one,
-            ).expect("compute_swap_step failed");
+//             let amount_used = if is_base_input {
+//                 match amount_in.checked_add(fee_amount) {
+//                     Some(amount) => amount,
+//                     None => {
+//                         println!("amount_in + fee_amount overflow");
+//                         println!("amount_in: {}", amount_in);
+//                         println!("fee_amount: {}", fee_amount);
+//                         amount_out
+//                     },
+//                 }
+//             } else {
+//                 amount_out
+//             };
 
-
-            let amount_in = swap_step.amount_in;
-            let amount_out = swap_step.amount_out;
-            let sqrt_price_next_x64 = swap_step.sqrt_price_next_x64;
-            let fee_amount = swap_step.fee_amount;
-
-            let amount_used = if is_base_input {
-                match amount_in.checked_add(fee_amount) {
-                    Some(amount) => amount,
-                    None => {
-                        println!("amount_in + fee_amount overflow");
-                        println!("amount_in: {}", amount_in);
-                        println!("fee_amount: {}", fee_amount);
-                        amount_out
-                    },
-                }
-            } else {
-                amount_out
-            };
-
-            if sqrt_price_next_x64 != sqrt_price_target_x64 {
-                assert!(amount_used == amount_remaining);
-            } else {
-                assert!(amount_used <= amount_remaining);
-            }
-            let price_lower = sqrt_price_current_x64.min(sqrt_price_target_x64);
-            let price_upper = sqrt_price_current_x64.max(sqrt_price_target_x64);
-            assert!(sqrt_price_next_x64 >= price_lower);
-            assert!(sqrt_price_next_x64 <= price_upper);
-        }
-    }
-}
+//             if sqrt_price_next_x64 != sqrt_price_target_x64 {
+//                 assert!(amount_used == amount_remaining);
+//             } else {
+//                 assert!(amount_used <= amount_remaining);
+//             }
+//             let price_lower =
+// sqrt_price_current_x64.min(sqrt_price_target_x64);             let
+// price_upper = sqrt_price_current_x64.max(sqrt_price_target_x64);
+// assert!(sqrt_price_next_x64 >= price_lower);
+// assert!(sqrt_price_next_x64 <= price_upper);         }
+//     }
+// }

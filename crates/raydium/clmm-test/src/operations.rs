@@ -1,6 +1,6 @@
 use litesvm::LiteSVM;
 use program_test_utils::account::{get_solana_account_by_borsh, get_solana_account_by_pack};
-use raydium_clmm::{state, utils::derive};
+use raydium_clmm::{generated, utils::derive};
 use rust_decimal::Decimal;
 use solana_client_core::types::MaybeAccount;
 use solana_sdk::pubkey::Pubkey;
@@ -23,9 +23,9 @@ pub struct RaydiumClmmTest {
 }
 
 impl RaydiumClmmTest {
-    pub fn get_amm_config(&self, svm: &LiteSVM) -> Result<state::AmmConfig> {
+    pub fn get_amm_config(&self, svm: &LiteSVM) -> Result<generated::accounts::AmmConfig> {
         let amm_config = if let MaybeAccount::Exists(account) =
-            get_solana_account_by_borsh::<state::AmmConfig>(svm, &self.amm_config)
+            get_solana_account_by_borsh::<generated::accounts::AmmConfig>(svm, &self.amm_config)
         {
             account
         } else {
@@ -35,9 +35,9 @@ impl RaydiumClmmTest {
         Ok(amm_config.data)
     }
 
-    pub fn get_pool_state(&self, svm: &LiteSVM) -> Result<state::PoolState> {
+    pub fn get_pool_state(&self, svm: &LiteSVM) -> Result<generated::accounts::PoolState> {
         let pool_state = if let MaybeAccount::Exists(account) =
-            get_solana_account_by_borsh::<state::PoolState>(svm, &self.pool_state)
+            get_solana_account_by_borsh::<generated::accounts::PoolState>(svm, &self.pool_state)
         {
             account
         } else {
@@ -47,9 +47,12 @@ impl RaydiumClmmTest {
         Ok(pool_state.data)
     }
 
-    pub fn get_tick_array_bitmap(&self, svm: &LiteSVM) -> Result<state::TickArrayBitmapExtension> {
+    pub fn get_tick_array_bitmap(
+        &self,
+        svm: &LiteSVM,
+    ) -> Result<generated::accounts::TickArrayBitmapExtension> {
         let tick_array_bitmap = if let MaybeAccount::Exists(account) =
-            get_solana_account_by_borsh::<state::TickArrayBitmapExtension>(
+            get_solana_account_by_borsh::<generated::accounts::TickArrayBitmapExtension>(
                 svm,
                 &self.tick_array_bitmap,
             ) {
@@ -65,12 +68,14 @@ impl RaydiumClmmTest {
         &self,
         svm: &LiteSVM,
         position_nft_mint: Pubkey,
-    ) -> Result<state::PersonalPositionState> {
+    ) -> Result<generated::accounts::PersonalPositionState> {
         let personal_position =
             derive::derive_personal_position_pubkey(position_nft_mint, Some(self.program_id)).0;
-        let personal_position = if let MaybeAccount::Exists(account) =
-            get_solana_account_by_borsh::<state::PersonalPositionState>(&svm, &personal_position)
-        {
+        let personal_position = if let MaybeAccount::Exists(account) = get_solana_account_by_borsh::<
+            generated::accounts::PersonalPositionState,
+        >(
+            &svm, &personal_position
+        ) {
             account
         } else {
             return Err(ClmmTestError::PersonalPositionNotFound.into());
@@ -92,9 +97,10 @@ impl RaydiumClmmTest {
         &self,
         svm: &LiteSVM,
         tick_array_account: Pubkey,
-    ) -> Result<state::TickArrayState> {
-        let tick_array = if let MaybeAccount::Exists(account) =
-            get_solana_account_by_borsh::<state::TickArrayState>(svm, &tick_array_account)
+    ) -> Result<generated::accounts::TickArrayState> {
+        let tick_array = if let MaybeAccount::Exists(account) = get_solana_account_by_borsh::<
+            generated::accounts::TickArrayState,
+        >(svm, &tick_array_account)
         {
             account
         } else {

@@ -1,6 +1,6 @@
 use std::collections::VecDeque;
 
-use raydium_clmm::state::{PoolState, TickArrayBitmapExtension, TickArrayState};
+use raydium_clmm::generated::accounts::{PoolState, TickArrayBitmapExtension, TickArrayState};
 use solana_sdk::pubkey::Pubkey;
 
 #[derive(Clone, Debug, Default)]
@@ -103,7 +103,7 @@ pub struct DecreaseLiquidityV2Params {
     pub tick_array_upper: Pubkey,
 }
 
-#[derive(Clone, Debug, Default)]
+#[derive(Clone, Debug)]
 pub struct PreviewSwapV2Params {
     pub amount: u64,
     pub sqrt_price_limit_x64: u128,

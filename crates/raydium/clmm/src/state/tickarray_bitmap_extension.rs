@@ -1,28 +1,18 @@
-use anchor_discriminator_derive::discriminator;
-use borsh::{BorshDeserialize, BorshSerialize};
 use snafu::{ResultExt, Snafu};
 use solana_program::pubkey::Pubkey;
 
 use crate::{
     constants::EXTENSION_TICKARRAY_BITMAP_SIZE,
+    generated::accounts::TickArrayBitmapExtension,
     libraries::U512,
     math::{tick, tickarray_bitmap},
 };
-
-#[discriminator(account)]
-#[derive(BorshSerialize, BorshDeserialize, Clone, Debug)]
-pub struct TickArrayBitmapExtension {
-    pub pool_id: Pubkey,
-    /// Packed initialized tick array state for start_tick_index is positive
-    pub positive_tick_array_bitmap: [[u64; 8]; EXTENSION_TICKARRAY_BITMAP_SIZE],
-    /// Packed initialized tick array state for start_tick_index is negitive
-    pub negative_tick_array_bitmap: [[u64; 8]; EXTENSION_TICKARRAY_BITMAP_SIZE],
-}
 
 impl Default for TickArrayBitmapExtension {
     #[inline]
     fn default() -> TickArrayBitmapExtension {
         TickArrayBitmapExtension {
+            discriminator: [0; 8],
             pool_id: Pubkey::default(),
             positive_tick_array_bitmap: [[0; 8]; EXTENSION_TICKARRAY_BITMAP_SIZE],
             negative_tick_array_bitmap: [[0; 8]; EXTENSION_TICKARRAY_BITMAP_SIZE],
