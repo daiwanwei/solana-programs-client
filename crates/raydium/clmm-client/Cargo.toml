@@ -31,8 +31,6 @@ rust_decimal = { workspace = true, features = ["maths"] }
 anyhow    = { workspace = true }
 thiserror = { workspace = true }
 
-solana-instruction-builder = { workspace = true }
-
 raydium-clmm = { workspace = true }
 
 [dev-dependencies]

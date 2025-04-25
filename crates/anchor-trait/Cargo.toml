@@ -1,0 +1,25 @@
+[package]
+name                   = "anchor-trait"
+description            = "Anchor Trait"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "anchor_trait"
+
+[features]
+
+[dependencies]
+sha2 = { workspace = true }
+
+[lints]
+workspace = true

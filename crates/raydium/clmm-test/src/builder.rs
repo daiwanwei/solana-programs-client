@@ -60,7 +60,7 @@ impl RaydiumClmmTestBuilder {
     pub fn build(self, svm: &mut LiteSVM, signer: &Keypair) -> Result<RaydiumClmmTest> {
         let program_id = self.program_id.unwrap_or(ID);
 
-        let (mint_0, mint_1, decimals_0, decimals_1, token_program_id_0, token_program_id_1) =
+        let (mint0, mint1, decimals0, decimals1, token_program_id0, token_program_id1) =
             if self.mint_0.is_some() && self.mint_1.is_some() {
                 get_mints(svm, self.mint_0.unwrap(), self.mint_1.unwrap())?
             } else {
@@ -74,38 +74,36 @@ impl RaydiumClmmTestBuilder {
         let pool_params = self.create_pool_params.unwrap_or(CreatePoolParams {
             sqrt_price_x64: raydium_clmm_client::math::price::calculate_sqrt_price_x64(
                 Decimal::from(1),
-                decimals_0,
-                decimals_1,
+                decimals0,
+                decimals1,
             ),
             open_time: 0,
         });
         let (pool_state, _) =
-            create_pool(svm, &signer, program_id, mint_0, mint_1, amm_config, pool_params)?;
+            create_pool(svm, &signer, program_id, mint0, mint1, amm_config, pool_params)?;
 
         let observation_state = derive::derive_observation_pubkey(pool_state, Some(program_id)).0;
         let tick_array_bitmap =
             derive::derive_tick_array_bitmap_pubkey(pool_state, Some(program_id)).0;
-        let token_vault_0 =
-            derive::derive_pool_vault_pubkey(pool_state, mint_0, Some(program_id)).0;
-        let token_vault_1 =
-            derive::derive_pool_vault_pubkey(pool_state, mint_1, Some(program_id)).0;
+        let token_vault0 = derive::derive_pool_vault_pubkey(pool_state, mint0, Some(program_id)).0;
+        let token_vault1 = derive::derive_pool_vault_pubkey(pool_state, mint1, Some(program_id)).0;
 
         Ok(RaydiumClmmTest {
             program_id,
             token_pair: TokenPair {
-                mint_0,
-                mint_1,
-                decimals_0,
-                decimals_1,
-                token_program_id_0,
-                token_program_id_1,
+                mint0,
+                mint1,
+                decimals0,
+                decimals1,
+                token_program_id0,
+                token_program_id1,
             },
             amm_config,
             pool_state,
             observation_state,
             tick_array_bitmap,
-            token_vault_0,
-            token_vault_1,
+            token_vault0,
+            token_vault1,
             fee_config: FeeConfig {
                 tick_spacing: amm_config_params.tick_spacing,
                 trade_fee_rate: amm_config_params.trade_fee_rate,

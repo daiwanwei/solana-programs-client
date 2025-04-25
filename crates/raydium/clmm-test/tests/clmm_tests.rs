@@ -35,10 +35,10 @@ mod tests {
                 tick_lower_index: -30,
                 tick_upper_index: 30,
                 liquidity: INITIAL_LIQUIDITY,
-                amount_0_max: MAX_AMOUNT,
-                amount_1_max: MAX_AMOUNT,
-                user_token_account_0: user0.token_account_0,
-                user_token_account_1: user0.token_account_1,
+                amount0_max: MAX_AMOUNT,
+                amount1_max: MAX_AMOUNT,
+                user_token_account0: user0.token_account0,
+                user_token_account1: user0.token_account1,
             },
             &user0.keypair,
         )?;
@@ -58,10 +58,10 @@ mod tests {
                 tick_lower_index: -30,
                 tick_upper_index: 30,
                 liquidity: INITIAL_LIQUIDITY,
-                amount_0_max: MAX_AMOUNT,
-                amount_1_max: MAX_AMOUNT,
-                user_token_account_0: user0.token_account_0,
-                user_token_account_1: user0.token_account_1,
+                amount0_max: MAX_AMOUNT,
+                amount1_max: MAX_AMOUNT,
+                user_token_account0: user0.token_account0,
+                user_token_account1: user0.token_account1,
             },
             &user0.keypair,
         )?;
@@ -71,10 +71,10 @@ mod tests {
             &mut svm,
             IncreaseLiquidityV2Params {
                 liquidity: INCREASE_LIQUIDITY,
-                amount_0_max: MAX_AMOUNT,
-                amount_1_max: MAX_AMOUNT,
-                user_token_account_0: user0.token_account_0,
-                user_token_account_1: user0.token_account_1,
+                amount0_max: MAX_AMOUNT,
+                amount1_max: MAX_AMOUNT,
+                user_token_account0: user0.token_account0,
+                user_token_account1: user0.token_account1,
                 position_nft_mint,
             },
             &user0.keypair,
@@ -95,22 +95,20 @@ mod tests {
             sqrt_price_limit_x64: 0,
             is_base_input,
             zero_for_one,
-            user_token_account_0: user0.token_account_0,
-            user_token_account_1: user0.token_account_1,
+            user_token_account0: user0.token_account0,
+            user_token_account1: user0.token_account1,
         };
 
-        let token_account_0_before =
-            clmm_test.get_token_account(&mut svm, user0.token_account_0)?;
-        let token_account_1_before =
-            clmm_test.get_token_account(&mut svm, user0.token_account_1)?;
+        let token_account_0_before = clmm_test.get_token_account(&mut svm, user0.token_account0)?;
+        let token_account_1_before = clmm_test.get_token_account(&mut svm, user0.token_account1)?;
 
         let swap_state = clmm_test.preview_swap_v2(&mut svm, params.clone())?;
 
         // Perform a swap
         let _unused = clmm_test.swap_v2(&mut svm, params, &user0.keypair)?;
 
-        let token_account_0_after = clmm_test.get_token_account(&mut svm, user0.token_account_0)?;
-        let token_account_1_after = clmm_test.get_token_account(&mut svm, user0.token_account_1)?;
+        let token_account_0_after = clmm_test.get_token_account(&mut svm, user0.token_account0)?;
+        let token_account_1_after = clmm_test.get_token_account(&mut svm, user0.token_account1)?;
 
         if zero_for_one {
             assert_eq!(
@@ -163,10 +161,10 @@ mod tests {
                     tick_lower_index: tick_lower,
                     tick_upper_index: tick_upper,
                     liquidity: INITIAL_LIQUIDITY,
-                    amount_0_max: MAX_AMOUNT,
-                    amount_1_max: MAX_AMOUNT,
-                    user_token_account_0: user0.token_account_0,
-                    user_token_account_1: user0.token_account_1,
+                    amount0_max: MAX_AMOUNT,
+                    amount1_max: MAX_AMOUNT,
+                    user_token_account0: user0.token_account0,
+                    user_token_account1: user0.token_account1,
                 },
                 &user0.keypair,
             )?;
@@ -192,11 +190,11 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
 
     let clmm_test = RaydiumClmmTestBuilder::new().build(&mut svm, &admin).unwrap();
     let user0 =
-        create_user(&mut svm, &admin, &clmm_test.token_pair.mint_0, &clmm_test.token_pair.mint_1);
+        create_user(&mut svm, &admin, &clmm_test.token_pair.mint0, &clmm_test.token_pair.mint1);
     let user1 =
-        create_user(&mut svm, &admin, &clmm_test.token_pair.mint_0, &clmm_test.token_pair.mint_1);
+        create_user(&mut svm, &admin, &clmm_test.token_pair.mint0, &clmm_test.token_pair.mint1);
     let user2 =
-        create_user(&mut svm, &admin, &clmm_test.token_pair.mint_0, &clmm_test.token_pair.mint_1);
+        create_user(&mut svm, &admin, &clmm_test.token_pair.mint0, &clmm_test.token_pair.mint1);
 
     // Define different tick ranges
     let tick_ranges =
@@ -212,10 +210,10 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
                 tick_lower_index: tick_lower,
                 tick_upper_index: tick_upper,
                 liquidity: 1_000_000,
-                amount_0_max: MAX_AMOUNT,
-                amount_1_max: MAX_AMOUNT,
-                user_token_account_0: user0.token_account_0,
-                user_token_account_1: user0.token_account_1,
+                amount0_max: MAX_AMOUNT,
+                amount1_max: MAX_AMOUNT,
+                user_token_account0: user0.token_account0,
+                user_token_account1: user0.token_account1,
             },
             &user0.keypair,
         )?;
@@ -225,10 +223,10 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
             &mut svm,
             IncreaseLiquidityV2Params {
                 liquidity: 1_000_000,
-                amount_0_max: MAX_AMOUNT,
-                amount_1_max: MAX_AMOUNT,
-                user_token_account_0: user0.token_account_0,
-                user_token_account_1: user0.token_account_1,
+                amount0_max: MAX_AMOUNT,
+                amount1_max: MAX_AMOUNT,
+                user_token_account0: user0.token_account0,
+                user_token_account1: user0.token_account1,
                 position_nft_mint,
             },
             &user0.keypair,
@@ -243,15 +241,15 @@ fn create_fixture() -> Result<Fixture, Box<dyn std::error::Error>> {
 fn create_user(svm: &mut LiteSVM, admin: &Keypair, mint_0: &Pubkey, mint_1: &Pubkey) -> User {
     let user = Keypair::new();
     let _unused = svm.airdrop(&user.pubkey(), 1_000_000_000).unwrap();
-    let (token_account_0, _) = get_or_create_ata(svm, admin, mint_0, &user.pubkey()).unwrap();
-    let (token_account_1, _) = get_or_create_ata(svm, admin, mint_1, &user.pubkey()).unwrap();
+    let (token_account0, _) = get_or_create_ata(svm, admin, mint_0, &user.pubkey()).unwrap();
+    let (token_account1, _) = get_or_create_ata(svm, admin, mint_1, &user.pubkey()).unwrap();
 
     let _unused =
-        mint_to(svm, admin, mint_0, &token_account_0, &[admin], 1_000_000_000_000_000_000).unwrap();
+        mint_to(svm, admin, mint_0, &token_account0, &[admin], 1_000_000_000_000_000_000).unwrap();
     let _unused =
-        mint_to(svm, admin, mint_1, &token_account_1, &[admin], 1_000_000_000_000_000_000).unwrap();
+        mint_to(svm, admin, mint_1, &token_account1, &[admin], 1_000_000_000_000_000_000).unwrap();
 
-    User { keypair: user, token_account_0, token_account_1 }
+    User { keypair: user, token_account0, token_account1 }
 }
 
 #[allow(dead_code)]
@@ -268,6 +266,6 @@ struct Fixture {
 
 struct User {
     keypair: Keypair,
-    token_account_0: Pubkey,
-    token_account_1: Pubkey,
+    token_account0: Pubkey,
+    token_account1: Pubkey,
 }

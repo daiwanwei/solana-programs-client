@@ -17,6 +17,7 @@ resolver = "2"
 members = [
   "crates/core",
   "crates/deserialize",
+  "crates/anchor-trait",
 
   "crates/raydium/clmm",
   "crates/raydium/clmm-client",
@@ -66,17 +67,17 @@ litesvm                      = "0.6"
 snafu        = "0.8"
 rust_decimal = "1"
 uint         = { package = "uint", git = "https://github.com/raydium-io/parity-common" }
+sha2         = "0.10"
 
 # testing
 proptest = "1"
 
+anchor-trait       = { path = "crates/anchor-trait" }
 solana-client-core = { path = "crates/core" }
 solana-deserialize = { path = "crates/deserialize" }
 
-anchor-trait                = { package = "anchor-trait", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 anchor-instructions-derive  = { package = "anchor-instructions-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 anchor-discriminator-derive = { package = "anchor-discriminator-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
-solana-instruction-builder  = { package = "solana-instruction-builder", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 solana-accounts-derive      = { package = "solana-accounts-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 solana-common-core          = { package = "solana-common-core", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 # solana-deserialize          = { package = "solana-deserialize", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }

@@ -2,12 +2,12 @@ use solana_sdk::pubkey::Pubkey;
 
 #[derive(Clone, Debug)]
 pub struct TokenPair {
-    pub mint_0: Pubkey,
-    pub mint_1: Pubkey,
-    pub decimals_0: u8,
-    pub decimals_1: u8,
-    pub token_program_id_0: Pubkey,
-    pub token_program_id_1: Pubkey,
+    pub mint0: Pubkey,
+    pub mint1: Pubkey,
+    pub decimals0: u8,
+    pub decimals1: u8,
+    pub token_program_id0: Pubkey,
+    pub token_program_id1: Pubkey,
 }
 
 #[derive(Clone, Debug)]
@@ -75,20 +75,20 @@ pub struct OpenPositionV2Params {
     pub tick_lower_index: i32,
     pub tick_upper_index: i32,
     pub liquidity: u128,
-    pub amount_0_max: u64,
-    pub amount_1_max: u64,
-    pub user_token_account_0: Pubkey,
-    pub user_token_account_1: Pubkey,
+    pub amount0_max: u64,
+    pub amount1_max: u64,
+    pub user_token_account0: Pubkey,
+    pub user_token_account1: Pubkey,
 }
 
 #[derive(Clone, Debug, Default)]
 pub struct IncreaseLiquidityV2Params {
     pub liquidity: u128,
-    pub amount_0_max: u64,
-    pub amount_1_max: u64,
+    pub amount0_max: u64,
+    pub amount1_max: u64,
     pub position_nft_mint: Pubkey,
-    pub user_token_account_0: Pubkey,
-    pub user_token_account_1: Pubkey,
+    pub user_token_account0: Pubkey,
+    pub user_token_account1: Pubkey,
 }
 
 #[derive(Clone, Debug, Default)]
@@ -98,16 +98,16 @@ pub struct SwapV2Params {
     pub sqrt_price_limit_x64: u128,
     pub is_base_input: bool,
     pub zero_for_one: bool,
-    pub user_token_account_0: Pubkey,
-    pub user_token_account_1: Pubkey,
+    pub user_token_account0: Pubkey,
+    pub user_token_account1: Pubkey,
 }
 
 #[derive(Clone, Debug, Default)]
 pub struct DecreaseLiquidityV2Params {
     pub liquidity: u128,
-    pub amount_0_min: u64,
-    pub amount_1_min: u64,
+    pub amount0_min: u64,
+    pub amount1_min: u64,
     pub position_nft_mint: Pubkey,
-    pub recipient_token_account_0: Pubkey,
-    pub recipient_token_account_1: Pubkey,
+    pub recipient_token_account0: Pubkey,
+    pub recipient_token_account1: Pubkey,
 }

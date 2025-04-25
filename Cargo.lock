@@ -313,9 +313,8 @@ dependencies = [
 [[package]]
 name = "anchor-trait"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
- "borsh 1.5.5",
+ "sha2 0.10.8",
 ]
 
 [[package]]
@@ -2832,7 +2831,6 @@ dependencies = [
  "solana-client-core",
  "solana-common-core",
  "solana-deserialize",
- "solana-instruction-builder",
  "solana-program",
  "solana-program-pack",
  "solana-sdk",
@@ -3321,7 +3319,6 @@ dependencies = [
  "proptest",
  "raydium-clmm",
  "rust_decimal",
- "solana-instruction-builder",
  "solana-program",
  "solana-program-error",
  "solana-sdk",
@@ -3353,7 +3350,6 @@ dependencies = [
  "solana-client-core",
  "solana-common-core",
  "solana-deserialize",
- "solana-instruction-builder",
  "solana-program",
  "solana-program-pack",
  "solana-sdk",
@@ -4842,18 +4838,6 @@ dependencies = [
  "solana-define-syscall",
  "solana-pubkey",
  "wasm-bindgen",
-]
-
-[[package]]
-name = "solana-instruction-builder"
-version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
-dependencies = [
- "anchor-trait",
- "borsh 1.5.5",
- "solana-common-core",
- "solana-program",
- "solana-program-pack",
 ]
 
 [[package]]

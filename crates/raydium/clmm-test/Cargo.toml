@@ -44,9 +44,8 @@ anchor-instructions-derive  = { workspace = true }
 solana-accounts-derive      = { workspace = true }
 solana-common-core          = { workspace = true }
 
-solana-instruction-builder = { workspace = true }
-solana-deserialize         = { workspace = true }
-solana-client-core         = { workspace = true }
+solana-deserialize = { workspace = true }
+solana-client-core = { workspace = true }
 
 program-test-utils = { workspace = true }
 

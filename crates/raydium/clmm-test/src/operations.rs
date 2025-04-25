@@ -17,8 +17,8 @@ pub struct RaydiumClmmTest {
     pub pool_state: Pubkey,
     pub observation_state: Pubkey,
     pub tick_array_bitmap: Pubkey,
-    pub token_vault_0: Pubkey,
-    pub token_vault_1: Pubkey,
+    pub token_vault0: Pubkey,
+    pub token_vault1: Pubkey,
     pub fee_config: crate::types::FeeConfig,
 }
 
@@ -88,8 +88,8 @@ impl RaydiumClmmTest {
         let pool_state = self.get_pool_state(svm)?;
         Ok(raydium_clmm_client::math::price::calculate_price(
             pool_state.sqrt_price_x64,
-            self.token_pair.decimals_0,
-            self.token_pair.decimals_1,
+            self.token_pair.decimals0,
+            self.token_pair.decimals1,
         ))
     }
 
