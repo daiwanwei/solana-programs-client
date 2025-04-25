@@ -2771,6 +2771,7 @@ dependencies = [
  "anyhow",
  "base64 0.22.1",
  "borsh 1.5.5",
+ "lazy_static",
  "num-derive",
  "num-traits",
  "proptest",

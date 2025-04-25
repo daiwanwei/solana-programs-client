@@ -1,4 +1,5 @@
 pub mod constants;
+pub mod discriminator;
 pub mod math;
 pub mod utils;
 

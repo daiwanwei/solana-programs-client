@@ -11,3 +11,9 @@ pub fn generate_discriminator(namespace: &str, name: &str) -> [u8; 8] {
     let discriminator = hasher.finalize();
     discriminator[..8].try_into().unwrap()
 }
+
+pub fn generate_account_discriminator(name: &str) -> [u8; 8] {
+    generate_discriminator("account", name)
+}
+
+pub fn generate_event_discriminator(name: &str) -> [u8; 8] { generate_discriminator("event", name) }

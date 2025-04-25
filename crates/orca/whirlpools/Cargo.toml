@@ -25,7 +25,8 @@ fetch            = ["dep:solana-client", "dep:solana-sdk", "dep:solana-account-d
 solana-v1        = []
 
 [dependencies]
-borsh = { workspace = true }
+borsh       = { workspace = true }
+lazy_static = { workspace = true }
 
 anyhow    = { workspace = true }
 thiserror = { workspace = true }
