@@ -1,7 +1,8 @@
 use litesvm::{types::TransactionMetadata, LiteSVM};
 use program_test_utils::{
-    account::get_solana_account, sign_and_send_transaction, token::create_mint,
+    account::get_solana_account_by_pack, sign_and_send_transaction, token::create_mint,
 };
+use solana_client_core::types::MaybeAccount;
 use solana_sdk::{
     pubkey::Pubkey,
     signature::{Keypair, Signer},
@@ -59,18 +60,28 @@ pub fn get_mints(
 ) -> Result<(Pubkey, Pubkey, u8, u8, Pubkey, Pubkey)> {
     let (mint_0, mint_1) = if mint_a < mint_b { (mint_a, mint_b) } else { (mint_b, mint_a) };
 
-    let mint_0_account = get_solana_account::<spl_token::state::Mint>(svm, &mint_0)
-        .ok_or(WhirlpoolsTestError::MintNotFound)?;
-    let mint_1_account = get_solana_account::<spl_token::state::Mint>(svm, &mint_1)
-        .ok_or(WhirlpoolsTestError::MintNotFound)?;
+    let mint_0_account = if let MaybeAccount::Exists(account) =
+        get_solana_account_by_pack::<spl_token::state::Mint>(svm, &mint_0)
+    {
+        account
+    } else {
+        return Err(WhirlpoolsTestError::MintNotFound);
+    };
+    let mint_1_account = if let MaybeAccount::Exists(account) =
+        get_solana_account_by_pack::<spl_token::state::Mint>(svm, &mint_1)
+    {
+        account
+    } else {
+        return Err(WhirlpoolsTestError::MintNotFound);
+    };
 
     Ok((
         mint_0,
         mint_1,
         mint_0_account.data.decimals,
         mint_1_account.data.decimals,
-        mint_0_account.owner,
-        mint_1_account.owner,
+        mint_0_account.account.owner,
+        mint_1_account.account.owner,
     ))
 }
 

@@ -1,0 +1,31 @@
+[package]
+name                   = "solana-client-core"
+description            = "Solana Client Core"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "solana_client_core"
+
+[features]
+
+[dependencies]
+# error handling
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+
+# solana
+solana-program = { workspace = true }
+solana-sdk     = { workspace = true }
+
+[lints]
+workspace = true

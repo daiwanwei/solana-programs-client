@@ -1,7 +1,8 @@
 use litesvm::LiteSVM;
-use program_test_utils::account::{get_anchor_account, get_solana_account};
+use program_test_utils::account::{get_solana_account_by_borsh, get_solana_account_by_pack};
 use raydium_clmm::{state, utils::derive};
 use rust_decimal::Decimal;
+use solana_client_core::types::MaybeAccount;
 use solana_sdk::pubkey::Pubkey;
 
 use crate::{
@@ -23,21 +24,41 @@ pub struct RaydiumClmmTest {
 
 impl RaydiumClmmTest {
     pub fn get_amm_config(&self, svm: &LiteSVM) -> Result<state::AmmConfig> {
-        get_anchor_account::<state::AmmConfig>(svm, &self.amm_config)
-            .ok_or(ClmmTestError::AmmConfigNotFound.into())
-            .map(|account| account.data)
+        let amm_config = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_borsh::<state::AmmConfig>(svm, &self.amm_config)
+        {
+            account
+        } else {
+            return Err(ClmmTestError::AmmConfigNotFound.into());
+        };
+
+        Ok(amm_config.data)
     }
 
     pub fn get_pool_state(&self, svm: &LiteSVM) -> Result<state::PoolState> {
-        get_anchor_account::<state::PoolState>(svm, &self.pool_state)
-            .ok_or(ClmmTestError::PoolStateNotFound.into())
-            .map(|account| account.data)
+        let pool_state = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_borsh::<state::PoolState>(svm, &self.pool_state)
+        {
+            account
+        } else {
+            return Err(ClmmTestError::PoolStateNotFound.into());
+        };
+
+        Ok(pool_state.data)
     }
 
     pub fn get_tick_array_bitmap(&self, svm: &LiteSVM) -> Result<state::TickArrayBitmapExtension> {
-        get_anchor_account::<state::TickArrayBitmapExtension>(svm, &self.tick_array_bitmap)
-            .ok_or(ClmmTestError::TickArrayBitmapNotFound.into())
-            .map(|account| account.data)
+        let tick_array_bitmap = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_borsh::<state::TickArrayBitmapExtension>(
+                svm,
+                &self.tick_array_bitmap,
+            ) {
+            account
+        } else {
+            return Err(ClmmTestError::TickArrayBitmapNotFound.into());
+        };
+
+        Ok(tick_array_bitmap.data)
     }
 
     pub fn get_personal_position_state(
@@ -47,9 +68,15 @@ impl RaydiumClmmTest {
     ) -> Result<state::PersonalPositionState> {
         let personal_position =
             derive::derive_personal_position_pubkey(position_nft_mint, Some(self.program_id)).0;
-        get_anchor_account::<state::PersonalPositionState>(&svm, &personal_position)
-            .ok_or(ClmmTestError::PersonalPositionNotFound.into())
-            .map(|account| account.data)
+        let personal_position = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_borsh::<state::PersonalPositionState>(&svm, &personal_position)
+        {
+            account
+        } else {
+            return Err(ClmmTestError::PersonalPositionNotFound.into());
+        };
+
+        Ok(personal_position.data)
     }
 
     pub fn get_price(&self, svm: &LiteSVM) -> Result<Decimal> {
@@ -66,9 +93,15 @@ impl RaydiumClmmTest {
         svm: &LiteSVM,
         tick_array_account: Pubkey,
     ) -> Result<state::TickArrayState> {
-        get_anchor_account::<state::TickArrayState>(svm, &tick_array_account)
-            .ok_or(ClmmTestError::TickArrayNotFound.into())
-            .map(|account| account.data)
+        let tick_array = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_borsh::<state::TickArrayState>(svm, &tick_array_account)
+        {
+            account
+        } else {
+            return Err(ClmmTestError::TickArrayNotFound.into());
+        };
+
+        Ok(tick_array.data)
     }
 
     pub fn get_token_account(
@@ -76,8 +109,14 @@ impl RaydiumClmmTest {
         svm: &LiteSVM,
         token_account: Pubkey,
     ) -> Result<spl_token::state::Account> {
-        get_solana_account::<spl_token::state::Account>(svm, &token_account)
-            .ok_or(ClmmTestError::TokenAccountNotFound.into())
-            .map(|account| account.data)
+        let token_account = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_pack::<spl_token::state::Account>(svm, &token_account)
+        {
+            account
+        } else {
+            return Err(ClmmTestError::TokenAccountNotFound.into());
+        };
+
+        Ok(token_account.data)
     }
 }

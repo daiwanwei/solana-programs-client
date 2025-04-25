@@ -15,6 +15,9 @@ publish      = false
 [workspace]
 resolver = "2"
 members = [
+  "crates/core",
+  "crates/deserialize",
+
   "crates/raydium/clmm",
   "crates/raydium/clmm-client",
   "crates/raydium/clmm-test",
@@ -48,6 +51,7 @@ thiserror = "2"
 
 anchor-lang                  = "0.31.1"
 solana-program               = "2"
+solana-account               = "2"
 solana-program-error         = "2"
 solana-program-test          = "2"
 solana-sdk                   = "2"
@@ -66,13 +70,16 @@ uint         = { package = "uint", git = "https://github.com/raydium-io/parity-c
 # testing
 proptest = "1"
 
+solana-client-core = { path = "crates/core" }
+solana-deserialize = { path = "crates/deserialize" }
+
 anchor-trait                = { package = "anchor-trait", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 anchor-instructions-derive  = { package = "anchor-instructions-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 anchor-discriminator-derive = { package = "anchor-discriminator-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 solana-instruction-builder  = { package = "solana-instruction-builder", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 solana-accounts-derive      = { package = "solana-accounts-derive", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 solana-common-core          = { package = "solana-common-core", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
-solana-deserialize          = { package = "solana-deserialize", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
+# solana-deserialize          = { package = "solana-deserialize", git = "https://github.com/daiwanwei/solana-common", rev = "f33c8b9" }
 
 orca-whirlpools        = { path = "crates/orca/whirlpools" }
 orca-whirlpools-client = { path = "crates/orca/whirlpools-client" }

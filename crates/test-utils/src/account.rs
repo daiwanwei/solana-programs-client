@@ -1,56 +1,59 @@
-use anchor_trait::Discriminator;
 use borsh::BorshDeserialize;
 use litesvm::LiteSVM;
-use solana_deserialize::account::{deserialize_anchor_account, deserialize_solana_account};
+use solana_client_core::MaybeAccount;
+use solana_deserialize::account::{decode_solana_account_by_borsh, decode_solana_account_by_pack};
 use solana_program_pack::Pack;
-use solana_sdk::{pubkey::Pubkey, stake_history::Epoch};
+use solana_sdk::pubkey::Pubkey;
 
 pub fn check_account_exists(svm: &LiteSVM, pubkey: &Pubkey) -> bool {
     svm.get_account(pubkey).is_some()
 }
 
-pub fn get_anchor_account<T: Discriminator + BorshDeserialize>(
+pub fn get_solana_account_by_borsh<T: BorshDeserialize>(
     svm: &LiteSVM,
     pubkey: &Pubkey,
-) -> Option<DecodedAccount<T>> {
-    let account = svm.get_account(pubkey)?;
+) -> MaybeAccount<T> {
+    let account = if let Some(account) = svm.get_account(pubkey) {
+        account
+    } else {
+        return MaybeAccount::NotFound(*pubkey);
+    };
 
-    let data = deserialize_anchor_account::<T>(&account.data).ok()?;
+    let data = decode_solana_account_by_borsh::<T>(pubkey, &account)
+        .inspect_err(|e| {
+            println!("Failed to decode account: {:?}", e);
+        })
+        .unwrap();
 
-    Some(DecodedAccount {
-        lamports: account.lamports,
-        owner: account.owner,
-        executable: account.executable,
-        rent_epoch: account.rent_epoch,
-        data,
-    })
+    MaybeAccount::Exists(data)
 }
 
-pub fn get_anchor_accounts<T: Discriminator + BorshDeserialize>(
+pub fn get_solana_accounts_by_borsh<T: BorshDeserialize>(
     svm: &LiteSVM,
     pubkeys: &[Pubkey],
-) -> Vec<Option<DecodedAccount<T>>> {
-    pubkeys.iter().map(|pubkey| get_anchor_account::<T>(svm, pubkey)).collect()
+) -> Vec<MaybeAccount<T>> {
+    pubkeys.iter().map(|pubkey| get_solana_account_by_borsh::<T>(svm, pubkey)).collect()
 }
 
-pub fn get_solana_account<T: Pack>(svm: &LiteSVM, pubkey: &Pubkey) -> Option<DecodedAccount<T>> {
-    let account = svm.get_account(pubkey)?;
+pub fn get_solana_account_by_pack<T: Pack>(svm: &LiteSVM, pubkey: &Pubkey) -> MaybeAccount<T> {
+    let account = if let Some(account) = svm.get_account(pubkey) {
+        account
+    } else {
+        return MaybeAccount::NotFound(*pubkey);
+    };
 
-    let data = deserialize_solana_account::<T>(&account.data).ok()?;
+    let data = decode_solana_account_by_pack::<T>(pubkey, &account)
+        .inspect_err(|e| {
+            println!("Failed to decode account: {:?}", e);
+        })
+        .unwrap();
 
-    Some(DecodedAccount {
-        lamports: account.lamports,
-        owner: account.owner,
-        executable: account.executable,
-        rent_epoch: account.rent_epoch,
-        data,
-    })
+    MaybeAccount::Exists(data)
 }
 
-pub struct DecodedAccount<T> {
-    pub lamports: u64,
-    pub owner: Pubkey,
-    pub executable: bool,
-    pub rent_epoch: Epoch,
-    pub data: T,
+pub fn get_solana_accounts_by_pack<T: Pack>(
+    svm: &LiteSVM,
+    pubkeys: &[Pubkey],
+) -> Vec<MaybeAccount<T>> {
+    pubkeys.iter().map(|pubkey| get_solana_account_by_pack::<T>(svm, pubkey)).collect()
 }

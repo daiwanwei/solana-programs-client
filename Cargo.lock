@@ -2829,6 +2829,7 @@ dependencies = [
  "serde",
  "serde_json",
  "solana-accounts-derive",
+ "solana-client-core",
  "solana-common-core",
  "solana-deserialize",
  "solana-instruction-builder",
@@ -2997,6 +2998,7 @@ dependencies = [
  "base64 0.22.1",
  "borsh 1.5.5",
  "litesvm",
+ "solana-client-core",
  "solana-deserialize",
  "solana-program-error",
  "solana-program-pack",
@@ -3348,6 +3350,7 @@ dependencies = [
  "serde",
  "serde_json",
  "solana-accounts-derive",
+ "solana-client-core",
  "solana-common-core",
  "solana-deserialize",
  "solana-instruction-builder",
@@ -4349,6 +4352,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "solana-client-core"
+version = "0.0.1"
+dependencies = [
+ "anyhow",
+ "solana-program",
+ "solana-sdk",
+ "thiserror 2.0.12",
+]
+
+[[package]]
 name = "solana-client-traits"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4573,11 +4586,12 @@ dependencies = [
 [[package]]
 name = "solana-deserialize"
 version = "0.0.1"
-source = "git+https://github.com/daiwanwei/solana-common?rev=f33c8b9#f33c8b9543140cd1344dadd2bc21ad6f5650189e"
 dependencies = [
  "anchor-trait",
  "borsh 1.5.5",
  "snafu",
+ "solana-account",
+ "solana-client-core",
  "solana-program",
  "solana-program-pack",
 ]

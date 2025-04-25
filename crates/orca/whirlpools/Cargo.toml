@@ -17,7 +17,7 @@ crate-type = ["cdylib", "lib"]
 name       = "orca_whirlpools"
 
 [features]
-default          = []
+default          = ["fetch"]
 anchor           = ["dep:anchor-lang"]
 anchor-idl-build = []
 serde            = ["dep:serde", "dep:serde_with", "dep:serde-big-array"]

@@ -33,6 +33,7 @@ litesvm                      = { workspace = true }
 anyhow    = { workspace = true }
 thiserror = { workspace = true }
 
+solana-client-core = { workspace = true }
 anchor-trait       = { workspace = true }
 solana-deserialize = { workspace = true }
 

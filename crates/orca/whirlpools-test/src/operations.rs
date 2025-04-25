@@ -1,5 +1,8 @@
 use litesvm::LiteSVM;
-use program_test_utils::account::{get_anchor_account, get_anchor_accounts, get_solana_account};
+use program_test_utils::account::{
+    get_solana_account_by_borsh, get_solana_account_by_pack, get_solana_accounts_by_borsh,
+};
+use solana_client_core::types::MaybeAccount;
 use solana_sdk::pubkey::Pubkey;
 
 use crate::{
@@ -27,9 +30,13 @@ impl WhirlpoolsTest {
         svm: &LiteSVM,
         whirlpool: &Pubkey,
     ) -> Result<orca_whirlpools::state::Whirlpool> {
-        let whirlpool_account =
-            get_anchor_account::<orca_whirlpools::state::Whirlpool>(svm, whirlpool)
-                .ok_or(WhirlpoolsTestError::WhirlpoolNotFound)?;
+        let whirlpool_account = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_borsh::<orca_whirlpools::state::Whirlpool>(svm, whirlpool)
+        {
+            account
+        } else {
+            return Err(WhirlpoolsTestError::WhirlpoolNotFound);
+        };
 
         Ok(whirlpool_account.data)
     }
@@ -39,9 +46,13 @@ impl WhirlpoolsTest {
         svm: &LiteSVM,
         position: &Pubkey,
     ) -> Result<orca_whirlpools::state::Position> {
-        let position_account =
-            get_anchor_account::<orca_whirlpools::state::Position>(svm, position)
-                .ok_or(WhirlpoolsTestError::PositionNotFound)?;
+        let position_account = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_borsh::<orca_whirlpools::state::Position>(svm, position)
+        {
+            account
+        } else {
+            return Err(WhirlpoolsTestError::PositionNotFound);
+        };
 
         Ok(position_account.data)
     }
@@ -52,17 +63,15 @@ impl WhirlpoolsTest {
         tick_arrays: &[Pubkey],
     ) -> Result<Vec<orca_whirlpools::state::TickArray>> {
         let tick_arrays =
-            get_anchor_accounts::<orca_whirlpools::state::TickArray>(svm, tick_arrays)
+            get_solana_accounts_by_borsh::<orca_whirlpools::state::TickArray>(svm, tick_arrays)
                 .into_iter()
-                .filter_map(
-                    |account| {
-                        if let Some(account) = account {
-                            Some(account.data)
-                        } else {
-                            None
-                        }
-                    },
-                )
+                .filter_map(|account| {
+                    if let MaybeAccount::Exists(account) = account {
+                        Some(account.data)
+                    } else {
+                        None
+                    }
+                })
                 .collect();
 
         Ok(tick_arrays)
@@ -73,9 +82,13 @@ impl WhirlpoolsTest {
         svm: &LiteSVM,
         token_account: &Pubkey,
     ) -> Result<spl_token::state::Account> {
-        let token_account_account =
-            get_solana_account::<spl_token::state::Account>(svm, token_account)
-                .ok_or(WhirlpoolsTestError::TokenAccountNotFound)?;
+        let token_account_account = if let MaybeAccount::Exists(account) =
+            get_solana_account_by_pack::<spl_token::state::Account>(svm, token_account)
+        {
+            account
+        } else {
+            return Err(WhirlpoolsTestError::TokenAccountNotFound);
+        };
 
         Ok(token_account_account.data)
     }

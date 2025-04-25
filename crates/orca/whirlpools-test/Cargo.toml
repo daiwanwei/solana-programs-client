@@ -47,13 +47,13 @@ solana-common-core          = { workspace = true }
 solana-instruction-builder = { workspace = true }
 solana-deserialize         = { workspace = true }
 
+solana-client-core = { workspace = true }
 program-test-utils = { workspace = true }
 
 orca-whirlpools        = { workspace = true }
 orca-whirlpools-client = { workspace = true }
 
 [dev-dependencies]
-program-test-utils   = { workspace = true }
 orca-whirlpools-test = { path = "." }
 
 [lints]

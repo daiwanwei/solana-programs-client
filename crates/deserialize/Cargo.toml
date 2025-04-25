@@ -1,0 +1,28 @@
+[package]
+name                   = "solana-deserialize"
+description            = "Solana Deserialize"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[dependencies]
+borsh = { workspace = true }
+
+solana-program      = { workspace = true }
+solana-program-pack = { workspace = true }
+solana-account      = { workspace = true }
+
+snafu = { workspace = true }
+
+anchor-trait       = { workspace = true }
+solana-client-core = { workspace = true }
+
+[lints]
+workspace = true
