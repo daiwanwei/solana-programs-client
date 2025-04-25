@@ -33,7 +33,7 @@ libm         = "0.2.11"
 anyhow    = { workspace = true }
 thiserror = { workspace = true }
 
-solana-instruction-builder = { workspace = true }
+solana-client-core = { workspace = true }
 
 orca-whirlpools = { workspace = true }
 

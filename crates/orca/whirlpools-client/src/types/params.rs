@@ -96,7 +96,7 @@ pub struct SwapParams {
     pub sqrt_price_limit: u128,
     pub amount_specified_is_input: bool,
     pub a_to_b: bool,
-    pub tick_array_0: Pubkey,
-    pub tick_array_1: Pubkey,
-    pub tick_array_2: Pubkey,
+    pub tick_array0: Pubkey,
+    pub tick_array1: Pubkey,
+    pub tick_array2: Pubkey,
 }

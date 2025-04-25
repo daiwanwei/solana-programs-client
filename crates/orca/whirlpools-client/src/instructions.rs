@@ -1,5 +1,4 @@
 use orca_whirlpools::utils::derive;
-use solana_instruction_builder::prepare_anchor_ix;
 use solana_sdk::{
     instruction::Instruction,
     pubkey::Pubkey,
@@ -19,20 +18,22 @@ pub fn prepare_initialize_config_instruction(
 ) -> Result<(Instruction, Keypair)> {
     let whirlpool_config = Keypair::new();
 
-    let ix = orca_whirlpools::instructions::InitializeConfig {
+    let ix = orca_whirlpools::generated::instructions::InitializeConfig {
+        config: whirlpool_config.pubkey(),
+        funder: params.owner,
+        system_program: system_program::ID,
+    };
+
+    let args = orca_whirlpools::generated::instructions::InitializeConfigInstructionArgs {
         fee_authority: params.fee_authority,
         collect_protocol_fees_authority: params.collect_protocol_fees_authority,
         reward_emissions_super_authority: params.reward_emissions_super_authority,
         default_protocol_fee_rate: params.default_protocol_fee_rate,
     };
 
-    let accounts = orca_whirlpools::accounts::InitializeConfig {
-        config: whirlpool_config.pubkey(),
-        funder: params.owner,
-        system_program: system_program::ID,
-    };
+    let mut instruction = ix.instruction(args);
 
-    let instruction = prepare_anchor_ix!(program_id, ix, accounts);
+    instruction.program_id = program_id;
 
     Ok((instruction, whirlpool_config))
 }
@@ -47,20 +48,22 @@ pub fn prepare_initialize_fee_tier_instruction(
         Some(program_id),
     );
 
-    let ix = orca_whirlpools::instructions::InitializeFeeTier {
-        tick_spacing: params.tick_spacing,
-        default_fee_rate: params.default_fee_rate,
-    };
-
-    let accounts = orca_whirlpools::accounts::InitializeFeeTier {
+    let ix = orca_whirlpools::generated::instructions::InitializeFeeTier {
+        config: params.whirlpool_config,
         fee_tier,
         funder: params.funder,
-        config: params.whirlpool_config,
         fee_authority: params.fee_authority,
         system_program: system_program::ID,
     };
 
-    let instruction = prepare_anchor_ix!(program_id, ix, accounts);
+    let args = orca_whirlpools::generated::instructions::InitializeFeeTierInstructionArgs {
+        tick_spacing: params.tick_spacing,
+        default_fee_rate: params.default_fee_rate,
+    };
+
+    let mut instruction = ix.instruction(args);
+
+    instruction.program_id = program_id;
 
     Ok((instruction, fee_tier))
 }
@@ -75,18 +78,20 @@ pub fn prepare_initialize_tick_array_instruction(
         Some(program_id),
     );
 
-    let ix = orca_whirlpools::instructions::InitializeTickArray {
-        start_tick_index: params.start_tick_index,
-    };
-
-    let accounts = orca_whirlpools::accounts::InitializeTickArray {
+    let ix = orca_whirlpools::generated::instructions::InitializeTickArray {
         whirlpool: params.whirlpool,
         funder: params.funder,
         tick_array,
         system_program: system_program::ID,
     };
 
-    let instruction = prepare_anchor_ix!(program_id, ix, accounts);
+    let args = orca_whirlpools::generated::instructions::InitializeTickArrayInstructionArgs {
+        start_tick_index: params.start_tick_index,
+    };
+
+    let mut instruction = ix.instruction(args);
+
+    instruction.program_id = program_id;
 
     Ok((instruction, tick_array))
 }
@@ -106,18 +111,12 @@ pub fn prepare_initialize_pool_instruction(
     let token_vault_a = Keypair::new();
     let token_vault_b = Keypair::new();
 
-    let ix = orca_whirlpools::instructions::InitializePool {
-        bumps: orca_whirlpools::instructions::WhirlpoolBumps { whirlpool_bump },
-        tick_spacing: params.tick_spacing,
-        initial_sqrt_price: params.sqrt_price,
-    };
-
-    let accounts = orca_whirlpools::accounts::InitializePool {
+    let ix = orca_whirlpools::generated::instructions::InitializePool {
         whirlpools_config: params.whirlpool_config,
-        funder: params.whirlpool_creator,
-        whirlpool,
         token_mint_a: params.mint_a,
         token_mint_b: params.mint_b,
+        funder: params.whirlpool_creator,
+        whirlpool,
         token_vault_a: token_vault_a.pubkey(),
         token_vault_b: token_vault_b.pubkey(),
         fee_tier: params.fee_tier,
@@ -126,7 +125,15 @@ pub fn prepare_initialize_pool_instruction(
         rent: sysvar::rent::ID,
     };
 
-    let instruction = prepare_anchor_ix!(program_id, ix, accounts);
+    let args = orca_whirlpools::generated::instructions::InitializePoolInstructionArgs {
+        whirlpool_bump,
+        initial_sqrt_price: params.sqrt_price,
+        tick_spacing: params.tick_spacing,
+    };
+
+    let mut instruction = ix.instruction(args);
+
+    instruction.program_id = program_id;
 
     Ok((instruction, whirlpool, token_vault_a, token_vault_b))
 }
@@ -139,13 +146,7 @@ pub fn prepare_open_position_instruction(
     let (position, position_bump) =
         derive::derive_position_pubkey(position_mint.pubkey(), Some(program_id));
 
-    let ix = orca_whirlpools::instructions::OpenPosition {
-        bumps: orca_whirlpools::instructions::OpenPositionBumps { position_bump },
-        tick_lower_index: params.tick_lower_index,
-        tick_upper_index: params.tick_upper_index,
-    };
-
-    let accounts = orca_whirlpools::accounts::OpenPosition {
+    let ix = orca_whirlpools::generated::instructions::OpenPosition {
         funder: params.payer,
         owner: params.owner,
         position,
@@ -161,7 +162,13 @@ pub fn prepare_open_position_instruction(
         associated_token_program: SPL_ASSOCIATED_TOKEN_ACCOUNT_ID,
     };
 
-    let instruction = prepare_anchor_ix!(program_id, ix, accounts);
+    let args = orca_whirlpools::generated::instructions::OpenPositionInstructionArgs {
+        position_bump,
+        tick_lower_index: params.tick_lower_index,
+        tick_upper_index: params.tick_upper_index,
+    };
+
+    let instruction = ix.instruction(args);
 
     Ok((instruction, position_mint))
 }
@@ -172,13 +179,7 @@ pub fn prepare_increase_liquidity_instruction(
 ) -> Result<Instruction> {
     let (position, _) = derive::derive_position_pubkey(params.position_nft_mint, Some(program_id));
 
-    let ix = orca_whirlpools::instructions::IncreaseLiquidity {
-        liquidity_amount: params.liquidity,
-        token_max_a: params.token_max_a,
-        token_max_b: params.token_max_b,
-    };
-
-    let accounts = orca_whirlpools::accounts::ModifyLiquidity {
+    let ix = orca_whirlpools::generated::instructions::IncreaseLiquidity {
         whirlpool: params.whirlpool,
         token_program: SPL_TOKEN_ID,
         position_authority: params.nft_owner,
@@ -195,21 +196,21 @@ pub fn prepare_increase_liquidity_instruction(
         tick_array_upper: params.tick_array_upper,
     };
 
-    let instruction = prepare_anchor_ix!(program_id, ix, accounts);
+    let args = orca_whirlpools::generated::instructions::IncreaseLiquidityInstructionArgs {
+        liquidity_amount: params.liquidity,
+        token_max_a: params.token_max_a,
+        token_max_b: params.token_max_b,
+    };
+
+    let mut instruction = ix.instruction(args);
+
+    instruction.program_id = program_id;
 
     Ok(instruction)
 }
 
 pub fn prepare_swap_instruction(params: SwapParams, program_id: Pubkey) -> Result<Instruction> {
-    let ix = orca_whirlpools::instructions::Swap {
-        amount: params.amount,
-        other_amount_threshold: params.other_amount_threshold,
-        sqrt_price_limit: params.sqrt_price_limit,
-        amount_specified_is_input: params.amount_specified_is_input,
-        a_to_b: params.a_to_b,
-    };
-
-    let accounts = orca_whirlpools::accounts::Swap {
+    let ix = orca_whirlpools::generated::instructions::Swap {
         token_program: SPL_TOKEN_ID,
         token_authority: params.token_authority,
         whirlpool: params.whirlpool,
@@ -217,13 +218,23 @@ pub fn prepare_swap_instruction(params: SwapParams, program_id: Pubkey) -> Resul
         token_vault_a: params.token_vault_a,
         token_owner_account_b: params.token_owner_account_b,
         token_vault_b: params.token_vault_b,
-        tick_array_0: params.tick_array_0,
-        tick_array_1: params.tick_array_1,
-        tick_array_2: params.tick_array_2,
+        tick_array0: params.tick_array0,
+        tick_array1: params.tick_array1,
+        tick_array2: params.tick_array2,
         oracle: derive::derive_oracle_pubkey(params.whirlpool, Some(program_id)).0,
     };
 
-    let instruction = prepare_anchor_ix!(program_id, ix, accounts);
+    let args = orca_whirlpools::generated::instructions::SwapInstructionArgs {
+        amount: params.amount,
+        other_amount_threshold: params.other_amount_threshold,
+        sqrt_price_limit: params.sqrt_price_limit,
+        amount_specified_is_input: params.amount_specified_is_input,
+        a_to_b: params.a_to_b,
+    };
+
+    let mut instruction = ix.instruction(args);
+
+    instruction.program_id = program_id;
 
     Ok(instruction)
 }
