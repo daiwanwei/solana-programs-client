@@ -25,8 +25,7 @@ fetch            = ["dep:solana-client", "dep:solana-sdk", "dep:solana-account-d
 solana-v1        = []
 
 [dependencies]
-borsh       = { workspace = true }
-lazy_static = { workspace = true }
+borsh = { workspace = true }
 
 anyhow    = { workspace = true }
 thiserror = { workspace = true }
@@ -43,11 +42,7 @@ solana-sdk             = { workspace = true, optional = true }
 solana-client          = { workspace = true, optional = true }
 solana-account-decoder = { workspace = true, optional = true }
 
-anchor-trait                = { workspace = true }
-anchor-discriminator-derive = { workspace = true }
-anchor-instructions-derive  = { workspace = true }
-solana-common-core          = { workspace = true }
-solana-accounts-derive      = { workspace = true }
+anchor-trait = { workspace = true }
 
 [dev-dependencies]
 base64   = { workspace = true }
