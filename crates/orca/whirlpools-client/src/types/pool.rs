@@ -22,8 +22,8 @@ pub struct WhirlpoolRewardInfoFacade {
     pub growth_global_x64: u128,
 }
 
-impl From<orca_whirlpools::state::Whirlpool> for WhirlpoolFacade {
-    fn from(whirlpool: orca_whirlpools::state::Whirlpool) -> Self {
+impl From<orca_whirlpools::generated::accounts::Whirlpool> for WhirlpoolFacade {
+    fn from(whirlpool: orca_whirlpools::generated::accounts::Whirlpool) -> Self {
         Self {
             tick_spacing: whirlpool.tick_spacing,
             fee_rate: whirlpool.fee_rate,
@@ -39,8 +39,8 @@ impl From<orca_whirlpools::state::Whirlpool> for WhirlpoolFacade {
     }
 }
 
-impl From<orca_whirlpools::state::WhirlpoolRewardInfo> for WhirlpoolRewardInfoFacade {
-    fn from(reward_info: orca_whirlpools::state::WhirlpoolRewardInfo) -> Self {
+impl From<orca_whirlpools::generated::types::WhirlpoolRewardInfo> for WhirlpoolRewardInfoFacade {
+    fn from(reward_info: orca_whirlpools::generated::types::WhirlpoolRewardInfo) -> Self {
         Self {
             emissions_per_second_x64: reward_info.emissions_per_second_x64,
             growth_global_x64: reward_info.growth_global_x64,

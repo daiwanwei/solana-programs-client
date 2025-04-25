@@ -22,8 +22,8 @@ pub struct TickArrayFacade {
     pub ticks: [TickFacade; TICK_ARRAY_SIZE],
 }
 
-impl From<orca_whirlpools::state::TickArray> for TickArrayFacade {
-    fn from(tick_array: orca_whirlpools::state::TickArray) -> Self {
+impl From<orca_whirlpools::generated::accounts::TickArray> for TickArrayFacade {
+    fn from(tick_array: orca_whirlpools::generated::accounts::TickArray) -> Self {
         Self {
             start_tick_index: tick_array.start_tick_index,
             ticks: tick_array.ticks.map(|tick| tick.into()),
@@ -31,8 +31,8 @@ impl From<orca_whirlpools::state::TickArray> for TickArrayFacade {
     }
 }
 
-impl From<orca_whirlpools::state::Tick> for TickFacade {
-    fn from(tick: orca_whirlpools::state::Tick) -> Self {
+impl From<orca_whirlpools::generated::types::Tick> for TickFacade {
+    fn from(tick: orca_whirlpools::generated::types::Tick) -> Self {
         Self {
             initialized: tick.initialized,
             liquidity_net: tick.liquidity_net,

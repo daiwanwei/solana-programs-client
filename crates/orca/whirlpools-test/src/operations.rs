@@ -29,9 +29,10 @@ impl WhirlpoolsTest {
         &self,
         svm: &LiteSVM,
         whirlpool: &Pubkey,
-    ) -> Result<orca_whirlpools::state::Whirlpool> {
-        let whirlpool_account = if let MaybeAccount::Exists(account) =
-            get_solana_account_by_borsh::<orca_whirlpools::state::Whirlpool>(svm, whirlpool)
+    ) -> Result<orca_whirlpools::generated::accounts::Whirlpool> {
+        let whirlpool_account = if let MaybeAccount::Exists(account) = get_solana_account_by_borsh::<
+            orca_whirlpools::generated::accounts::Whirlpool,
+        >(svm, whirlpool)
         {
             account
         } else {
@@ -45,9 +46,10 @@ impl WhirlpoolsTest {
         &self,
         svm: &LiteSVM,
         position: &Pubkey,
-    ) -> Result<orca_whirlpools::state::Position> {
-        let position_account = if let MaybeAccount::Exists(account) =
-            get_solana_account_by_borsh::<orca_whirlpools::state::Position>(svm, position)
+    ) -> Result<orca_whirlpools::generated::accounts::Position> {
+        let position_account = if let MaybeAccount::Exists(account) = get_solana_account_by_borsh::<
+            orca_whirlpools::generated::accounts::Position,
+        >(svm, position)
         {
             account
         } else {
@@ -61,18 +63,19 @@ impl WhirlpoolsTest {
         &self,
         svm: &LiteSVM,
         tick_arrays: &[Pubkey],
-    ) -> Result<Vec<orca_whirlpools::state::TickArray>> {
-        let tick_arrays =
-            get_solana_accounts_by_borsh::<orca_whirlpools::state::TickArray>(svm, tick_arrays)
-                .into_iter()
-                .filter_map(|account| {
-                    if let MaybeAccount::Exists(account) = account {
-                        Some(account.data)
-                    } else {
-                        None
-                    }
-                })
-                .collect();
+    ) -> Result<Vec<orca_whirlpools::generated::accounts::TickArray>> {
+        let tick_arrays = get_solana_accounts_by_borsh::<
+            orca_whirlpools::generated::accounts::TickArray,
+        >(svm, tick_arrays)
+        .into_iter()
+        .filter_map(|account| {
+            if let MaybeAccount::Exists(account) = account {
+                Some(account.data)
+            } else {
+                None
+            }
+        })
+        .collect();
 
         Ok(tick_arrays)
     }

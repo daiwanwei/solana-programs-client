@@ -1,4 +1,3 @@
-use orca_whirlpools::state::{TickArray, Whirlpool};
 use thiserror::Error;
 
 use crate::{
@@ -7,8 +6,8 @@ use crate::{
 };
 
 pub fn preview_swap(
-    whirlpool: Whirlpool,
-    tick_arrays: Vec<TickArray>,
+    whirlpool: orca_whirlpools::generated::accounts::Whirlpool,
+    tick_arrays: Vec<orca_whirlpools::generated::accounts::TickArray>,
     slippage_tolerance: u16,
     amount: u64,
     is_base_input: bool,
