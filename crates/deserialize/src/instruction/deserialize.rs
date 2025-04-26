@@ -1,8 +1,7 @@
 use anchor_trait::Discriminator;
 use borsh::BorshDeserialize;
-use snafu::ResultExt;
 
-use crate::instruction::error::{self, InstructionError, Result};
+use crate::instruction::error::{InstructionError, Result};
 
 pub fn deserialize_anchor_instruction<T>(data: &[u8]) -> Result<T>
 where
@@ -21,8 +20,8 @@ where
         });
     }
 
-    let account =
-        T::deserialize(&mut &data[8..]).context(error::DeserializeAnchorInstructionSnafu)?;
+    let account = T::deserialize(&mut &data[8..])
+        .map_err(|e| InstructionError::DeserializeAnchorInstruction { source: e })?;
 
     Ok(account)
 }

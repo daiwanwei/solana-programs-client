@@ -1,26 +1,25 @@
 use std::io;
 
-use snafu::Snafu;
+use thiserror::Error;
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum AccountError {
-    #[snafu(display("Invalid discriminator length: expected 8, actual {}", actual))]
+    #[error("Invalid discriminator length: expected 8, actual {actual}")]
     InvalidDiscriminatorLength { actual: usize },
 
-    #[snafu(display("Failed to parse discriminator"))]
+    #[error("Failed to parse discriminator")]
     ParseDiscriminator,
 
-    #[snafu(display("Invalid discriminator: expected {:?}, actual {:?}", expected, actual))]
+    #[error("Invalid discriminator: expected {expected:?}, actual {actual:?}")]
     InvalidDiscriminator { expected: [u8; 8], actual: [u8; 8] },
 
-    #[snafu(display("Failed to deserialize account"))]
+    #[error("Failed to deserialize account: {source}")]
     DeserializeAnchorAccount { source: io::Error },
 
-    #[snafu(display("Failed to deserialize account"))]
+    #[error("Failed to deserialize account")]
     DeserializeSolanaAccount,
 
-    #[snafu(display("Failed to decode account"))]
+    #[error("Failed to decode account")]
     DecodeSolanaAccount,
 }
 

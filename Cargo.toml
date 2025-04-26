@@ -64,7 +64,6 @@ spl-token-2022               = "7"
 spl-associated-token-account = "6"
 litesvm                      = "0.6"
 
-snafu        = "0.8"
 rust_decimal = "1"
 uint         = { package = "uint", git = "https://github.com/raydium-io/parity-common" }
 sha2         = "0.10"

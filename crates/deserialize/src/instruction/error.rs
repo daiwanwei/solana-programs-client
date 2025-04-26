@@ -1,20 +1,19 @@
 use std::io;
 
-use snafu::Snafu;
+use thiserror::Error;
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum InstructionError {
-    #[snafu(display("Invalid discriminator length: expected 8, actual {}", actual))]
+    #[error("Invalid discriminator length: expected 8, actual {actual}")]
     InvalidDiscriminatorLength { actual: usize },
 
-    #[snafu(display("Failed to parse discriminator"))]
+    #[error("Failed to parse discriminator")]
     ParseDiscriminator,
 
-    #[snafu(display("Invalid discriminator: expected {:?}, actual {:?}", expected, actual))]
+    #[error("Invalid discriminator: expected {expected:?}, actual {actual:?}")]
     InvalidDiscriminator { expected: [u8; 8], actual: [u8; 8] },
 
-    #[snafu(display("Failed to deserialize instruction"))]
+    #[error("Failed to deserialize instruction: {source}")]
     DeserializeAnchorInstruction { source: io::Error },
 }
 

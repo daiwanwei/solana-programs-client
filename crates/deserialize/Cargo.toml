@@ -15,11 +15,12 @@ keywords.workspace     = true
 [dependencies]
 borsh = { workspace = true }
 
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+
 solana-program      = { workspace = true }
 solana-program-pack = { workspace = true }
 solana-account      = { workspace = true }
-
-snafu = { workspace = true }
 
 anchor-trait       = { workspace = true }
 solana-client-core = { workspace = true }

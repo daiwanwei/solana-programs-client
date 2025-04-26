@@ -1,9 +1,8 @@
 use anchor_trait::Discriminator;
 use borsh::BorshDeserialize;
-use snafu::ResultExt;
 use solana_program_pack::Pack;
 
-use crate::account::error::{self, AccountError, Result};
+use crate::account::error::{AccountError, Result};
 
 pub fn deserialize_anchor_account<T>(data: &[u8]) -> Result<T>
 where
@@ -22,7 +21,8 @@ where
         });
     }
 
-    let account = T::deserialize(&mut &data[8..]).context(error::DeserializeAnchorAccountSnafu)?;
+    let account = T::deserialize(&mut &data[8..])
+        .map_err(|e| AccountError::DeserializeAnchorAccount { source: e })?;
 
     Ok(account)
 }
