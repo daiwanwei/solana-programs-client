@@ -1,4 +1,4 @@
-use snafu::{OptionExt, ResultExt, Snafu};
+use thiserror::Error;
 
 use crate::math::{
     fee::{calculate_amount_without_fee, calculate_fee},
@@ -51,12 +51,12 @@ pub fn compute_swap_step_by_specified_amount_in(
     // TODO: handle overflow
     let amount_remaining_without_fee =
         calculate_amount_without_fee(amount_remaining, fee_rate, false)
-            .context(CalculateFeeOverflowSnafu)?;
+            .ok_or(SwapStepError::MathOverflow)?;
 
     if amount_remaining_without_fee == 0 {
         println!("amount_remaining_without_fee == 0");
         let fee =
-            calculate_fee(amount_remaining, fee_rate, true).context(CalculateFeeOverflowSnafu)?;
+            calculate_fee(amount_remaining, fee_rate, true).ok_or(SwapStepError::MathOverflow)?;
         return Ok(SwapStep {
             sqrt_price_next_x64: sqrt_price_target_x64,
             amount_in: amount_remaining,
@@ -73,12 +73,12 @@ pub fn compute_swap_step_by_specified_amount_in(
         zero_for_one,
         true,
     )?
-    .context(CalculateAmountInRangeOverflowSnafu)?;
+    .ok_or(SwapStepError::CalculateAmountInRangeOverflow)?;
 
     let (sqrt_price_next_x64, amount_in, fee_amount) =
         if amount_remaining_without_fee >= amount_in_to_target {
             let fee = calculate_fee(amount_in_to_target, fee_rate, true)
-                .context(CalculateFeeOverflowSnafu)?;
+                .ok_or(SwapStepError::MathOverflow)?;
             (sqrt_price_target_x64, amount_in_to_target + fee, fee)
         } else {
             (
@@ -91,7 +91,7 @@ pub fn compute_swap_step_by_specified_amount_in(
                 amount_remaining,
                 u64::from(amount_remaining)
                     .checked_sub(amount_remaining_without_fee)
-                    .context(MathOverflowSnafu)?,
+                    .ok_or(SwapStepError::MathOverflow)?,
             )
         };
 
@@ -102,7 +102,7 @@ pub fn compute_swap_step_by_specified_amount_in(
         zero_for_one,
         false,
     )?
-    .context(CalculateAmountInRangeOverflowSnafu)?;
+    .ok_or(SwapStepError::CalculateAmountInRangeOverflow)?;
 
     let swap_step = SwapStep { amount_in, amount_out, sqrt_price_next_x64, fee_amount };
 
@@ -125,7 +125,7 @@ pub fn compute_swap_step_by_specified_amount_out(
         zero_for_one,
         false,
     )?
-    .context(CalculateAmountInRangeOverflowSnafu)?;
+    .ok_or(SwapStepError::CalculateAmountInRangeOverflow)?;
 
     // For exact output case, cap the output amount to not exceed the remaining
     // output amount
@@ -150,9 +150,9 @@ pub fn compute_swap_step_by_specified_amount_out(
         zero_for_one,
         true,
     )?
-    .context(CalculateAmountInRangeOverflowSnafu)?;
+    .ok_or(SwapStepError::CalculateAmountInRangeOverflow)?;
 
-    let fee_amount = calculate_fee(amount_in, fee_rate, true).context(CalculateFeeOverflowSnafu)?;
+    let fee_amount = calculate_fee(amount_in, fee_rate, true).ok_or(SwapStepError::MathOverflow)?;
 
     let swap_step = SwapStep { amount_in, amount_out, sqrt_price_next_x64, fee_amount };
 
@@ -187,8 +187,8 @@ fn calculate_amount_in_range(
                 liquidity,
                 true,
             )
-        }
-        .context(LiquiditySnafu)?;
+        }?;
+
         Ok(Some(result))
     } else {
         let result = if zero_for_one {
@@ -205,8 +205,8 @@ fn calculate_amount_in_range(
                 liquidity,
                 false,
             )
-        }
-        .context(LiquiditySnafu)?;
+        }?;
+
         Ok(Some(result))
     }
 }
@@ -222,22 +222,21 @@ pub struct SwapStep {
     pub fee_amount: u64,
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum SwapStepError {
-    #[snafu(display("amount_remaining_without_fee == 0"))]
+    #[error("amount_remaining_without_fee == 0")]
     AmountRemainingWithoutFeeIsZero,
 
-    #[snafu(display("Liquidity error: {}", source))]
-    Liquidity { source: liquidity::LiquidityError },
+    #[error("Liquidity error: {0}")]
+    Liquidity(#[from] liquidity::LiquidityError),
 
-    #[snafu(display("calculate_fee overflow"))]
+    #[error("calculate_fee overflow")]
     CalculateFeeOverflow,
 
-    #[snafu(display("math overflow"))]
+    #[error("math overflow")]
     MathOverflow,
 
-    #[snafu(display("calculate_amount_in_range overflow"))]
+    #[error("calculate_amount_in_range overflow")]
     CalculateAmountInRangeOverflow,
 }
 

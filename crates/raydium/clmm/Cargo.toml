@@ -30,7 +30,6 @@ borsh = { workspace = true }
 
 anyhow    = { workspace = true }
 thiserror = { workspace = true }
-snafu     = { workspace = true }
 
 anchor-lang = { workspace = true, optional = true }
 

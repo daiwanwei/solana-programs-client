@@ -1,4 +1,4 @@
-use snafu::{ResultExt, Snafu};
+use thiserror::Error;
 
 use crate::{
     libraries::{big_num::U256, fixed_point_64},
@@ -160,28 +160,28 @@ pub fn get_delta_amounts_signed(
     let mut amount_1 = 0;
     if tick_current < tick_lower {
         amount_0 = get_delta_amount_0_signed(
-            tick::get_sqrt_price_at_tick(tick_lower).context(TickSnafu)?,
-            tick::get_sqrt_price_at_tick(tick_upper).context(TickSnafu)?,
+            tick::get_sqrt_price_at_tick(tick_lower)?,
+            tick::get_sqrt_price_at_tick(tick_upper)?,
             liquidity_delta,
         )
         .unwrap();
     } else if tick_current < tick_upper {
         amount_0 = get_delta_amount_0_signed(
             sqrt_price_x64_current,
-            tick::get_sqrt_price_at_tick(tick_upper).context(TickSnafu)?,
+            tick::get_sqrt_price_at_tick(tick_upper)?,
             liquidity_delta,
         )
         .unwrap();
         amount_1 = get_delta_amount_1_signed(
-            tick::get_sqrt_price_at_tick(tick_lower).context(TickSnafu)?,
+            tick::get_sqrt_price_at_tick(tick_lower)?,
             sqrt_price_x64_current,
             liquidity_delta,
         )
         .unwrap();
     } else {
         amount_1 = get_delta_amount_1_signed(
-            tick::get_sqrt_price_at_tick(tick_lower).context(TickSnafu)?,
-            tick::get_sqrt_price_at_tick(tick_upper).context(TickSnafu)?,
+            tick::get_sqrt_price_at_tick(tick_lower)?,
+            tick::get_sqrt_price_at_tick(tick_upper)?,
             liquidity_delta,
         )
         .unwrap();
@@ -189,20 +189,19 @@ pub fn get_delta_amounts_signed(
     Ok((amount_0, amount_1))
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum LiquidityError {
-    #[snafu(display("Max token overflow"))]
+    #[error("Max token overflow")]
     MaxTokenOverflow,
 
-    #[snafu(display("Liquidity add value error"))]
+    #[error("Liquidity add value error")]
     LiquidityAddValue,
 
-    #[snafu(display("Liquidity sub value error"))]
+    #[error("Liquidity sub value error")]
     LiquiditySubValue,
 
-    #[snafu(display("Tick error: {}", source))]
-    Tick { source: TickError },
+    #[error("Tick error: {0}")]
+    Tick(#[from] TickError),
 }
 
 pub type Result<T> = std::result::Result<T, LiquidityError>;

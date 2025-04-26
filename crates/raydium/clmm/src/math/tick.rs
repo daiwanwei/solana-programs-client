@@ -1,4 +1,4 @@
-use snafu::Snafu;
+use thiserror::Error;
 
 use crate::{constants::TICK_ARRAY_SIZE, libraries::big_num::U128};
 
@@ -223,12 +223,11 @@ pub fn check_is_valid_start_index(tick_index: i32, tick_spacing: u16) -> bool {
     tick_index % tick_count(tick_spacing) == 0
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum TickError {
-    #[snafu(display("Sqrt price x64 overflow"))]
+    #[error("Sqrt price x64 overflow: {sqrt_price_x64}")]
     SqrtPriceX64Overflow { sqrt_price_x64: u128 },
 
-    #[snafu(display("Tick upper overflow"))]
+    #[error("Tick upper overflow")]
     TickUpperOverflow,
 }

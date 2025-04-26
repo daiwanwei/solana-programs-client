@@ -1,5 +1,5 @@
 use borsh::{BorshDeserialize, BorshSerialize};
-use snafu::Snafu;
+use thiserror::Error;
 
 use crate::{
     generated::accounts::{PoolState, TickArrayBitmapExtension},
@@ -143,13 +143,13 @@ pub enum PoolStatusBitFlag {
     Disable,
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
+#[error("{0}")]
 pub enum PoolStateError {
-    #[snafu(display("Missing tick array bitmap extension account"))]
+    #[error("Missing tick array bitmap extension account")]
     MissingTickArrayBitmapExtensionAccount,
 
-    #[snafu(display("Tick array start tick index out of range limit"))]
+    #[error("Tick array start tick index out of range limit")]
     TickArrayBitmapExtension,
 }
 

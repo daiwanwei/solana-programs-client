@@ -2,7 +2,7 @@ pub mod swap_step;
 
 use std::{collections::VecDeque, ops::Neg};
 
-use snafu::{OptionExt, ResultExt, Snafu};
+use thiserror::Error;
 
 use crate::{
     generated::{
@@ -125,7 +125,7 @@ pub fn compute_swap(
 
         // Calculate prices and execute swap step
         let next_tick = next_tick_state.tick.clamp(tick::MIN_TICK, tick::MAX_TICK);
-        let next_sqrt_price_x64 = tick::get_sqrt_price_at_tick(next_tick).context(TickSnafu)?;
+        let next_sqrt_price_x64 = tick::get_sqrt_price_at_tick(next_tick)?;
 
         let target_price =
             calculate_target_price(zero_for_one, next_sqrt_price_x64, sqrt_price_limit_x64);
@@ -138,8 +138,7 @@ pub fn compute_swap(
             fee,
             is_base_input,
             zero_for_one,
-        )
-        .context(SwapStepSnafu)?;
+        )?;
         update_cache_from_swap_step(
             &mut cache,
             &swap_result,
@@ -253,7 +252,7 @@ pub fn compute_swap_by_specified_sqrt_price(
 
         // Calculate prices and execute swap step
         let next_tick = next_tick_state.tick.clamp(tick::MIN_TICK, tick::MAX_TICK);
-        let next_sqrt_price_x64 = tick::get_sqrt_price_at_tick(next_tick).context(TickSnafu)?;
+        let next_sqrt_price_x64 = tick::get_sqrt_price_at_tick(next_tick)?;
 
         let target_price = calculate_target_price(zero_for_one, next_sqrt_price_x64, sqrt_price);
         // Execute swap step and update state
@@ -265,8 +264,8 @@ pub fn compute_swap_by_specified_sqrt_price(
             fee,
             IS_BASE_INPUT,
             zero_for_one,
-        )
-        .context(SwapStepSnafu)?;
+        )?;
+
         update_cache_from_swap_step(
             &mut cache,
             &swap_result,
@@ -396,20 +395,19 @@ fn update_cache_from_swap_step(
     if cache.initialized {
         let liquidity_net =
             if zero_for_one { next_tick.liquidity_net.neg() } else { next_tick.liquidity_net };
-        cache.liquidity =
-            liquidity::add_delta(cache.liquidity, liquidity_net).context(LiquiditySnafu)?;
+        cache.liquidity = liquidity::add_delta(cache.liquidity, liquidity_net)?;
     }
 
     if is_base_input {
         cache.remaining_amount =
-            cache.remaining_amount.checked_sub(step.amount_in).context(MathOverflowSnafu)?;
+            cache.remaining_amount.checked_sub(step.amount_in).ok_or(SwapError::MathOverflow)?;
         cache.amount_calculated =
-            cache.amount_calculated.checked_add(step.amount_out).context(MathOverflowSnafu)?;
+            cache.amount_calculated.checked_add(step.amount_out).ok_or(SwapError::MathOverflow)?;
     } else {
         cache.remaining_amount =
-            cache.remaining_amount.checked_sub(step.amount_out).context(MathOverflowSnafu)?;
+            cache.remaining_amount.checked_sub(step.amount_out).ok_or(SwapError::MathOverflow)?;
         cache.amount_calculated =
-            cache.amount_calculated.checked_add(step.amount_in).context(MathOverflowSnafu)?;
+            cache.amount_calculated.checked_add(step.amount_in).ok_or(SwapError::MathOverflow)?;
     }
 
     Ok(())
@@ -448,53 +446,52 @@ struct SwapCache {
     amount_calculated: u64,
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum SwapError {
-    #[snafu(display("Liquidity error: {}", source))]
-    Liquidity { source: liquidity::LiquidityError },
+    #[error("Liquidity error: {0}")]
+    Liquidity(#[from] liquidity::LiquidityError),
 
-    #[snafu(display("Tick error: {}", source))]
-    Tick { source: tick::TickError },
+    #[error("Tick error: {0}")]
+    Tick(#[from] tick::TickError),
 
-    #[snafu(display("Tick state error"))]
+    #[error("Tick state error")]
     TickState,
 
-    #[snafu(display("Pool state error"))]
+    #[error("Pool state error")]
     PoolState,
 
-    #[snafu(display("Math overflow"))]
+    #[error("Math overflow")]
     MathOverflow,
 
-    #[snafu(display("Amount specified zero"))]
+    #[error("Amount specified zero")]
     AmountSpecifiedZero,
 
-    #[snafu(display("Sqrt price limit x64 too small"))]
+    #[error("Sqrt price limit x64 too small")]
     SqrtPriceLimitX64TooSmall,
 
-    #[snafu(display("Sqrt price limit x64 too large"))]
+    #[error("Sqrt price limit x64 too large")]
     SqrtPriceLimitX64TooLarge,
 
-    #[snafu(display("Tick array start tick index does not match"))]
+    #[error("Tick array start tick index does not match")]
     TickArrayStartTickIndexDoesNotMatch,
 
-    #[snafu(display("Tick array start tick index out of range limit"))]
+    #[error("Tick array start tick index out of range limit")]
     TickArrayStartTickIndexOutOfRangeLimit,
 
-    #[snafu(display("Loop count limit"))]
+    #[error("Loop count limit")]
     LoopCountLimit,
 
-    #[snafu(display("No tick array available"))]
+    #[error("No tick array available")]
     NoTickArrayAvailable,
 
-    #[snafu(display("No more tick arrays available"))]
+    #[error("No more tick arrays available")]
     NoMoreTickArraysAvailable,
 
-    #[snafu(display("Tick state not initialized"))]
+    #[error("Tick state not initialized")]
     TickStateNotInitialized,
 
-    #[snafu(display("Swap step error: {}", source))]
-    SwapStep { source: swap_step::SwapStepError },
+    #[error("Swap step error: {0}")]
+    SwapStep(#[from] swap_step::SwapStepError),
 }
 
 pub type Result<T> = std::result::Result<T, SwapError>;

@@ -1,5 +1,5 @@
-use snafu::{ResultExt, Snafu};
 use solana_program::pubkey::Pubkey;
+use thiserror::Error;
 
 use crate::{
     constants::EXTENSION_TICKARRAY_BITMAP_SIZE,
@@ -28,8 +28,7 @@ impl TickArrayBitmapExtension {
         tick_index: i32,
         tick_spacing: u16,
     ) -> TickArrayBitmapResult<(usize, tickarray_bitmap::TickArryBitmap)> {
-        let offset = tickarray_bitmap::get_bitmap_offset(tick_index, tick_spacing)
-            .context(TickArrayBitmapSnafu)?;
+        let offset = tickarray_bitmap::get_bitmap_offset(tick_index, tick_spacing)?;
         if tick_index < 0 {
             Ok((offset, self.negative_tick_array_bitmap[offset]))
         } else {
@@ -89,14 +88,16 @@ impl TickArrayBitmapExtension {
     }
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum TickArrayBitmapExtensionError {
-    #[snafu(display("Invalid tick index"))]
+    #[error("Invalid tick index")]
     InvalidTickIndex,
 
-    #[snafu(display("Tick array bitmap error: {}", source))]
-    TickArrayBitmap { source: tickarray_bitmap::TickArrayBitmapError },
+    #[error("Tick array bitmap error")]
+    TickArrayBitmap {
+        #[from]
+        source: tickarray_bitmap::TickArrayBitmapError,
+    },
 }
 
 pub type TickArrayBitmapResult<T> = Result<T, TickArrayBitmapExtensionError>;

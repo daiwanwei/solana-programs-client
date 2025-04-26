@@ -3256,7 +3256,6 @@ dependencies = [
  "serde",
  "serde-big-array",
  "serde_with",
- "snafu",
  "solana-account-decoder",
  "solana-client",
  "solana-program",

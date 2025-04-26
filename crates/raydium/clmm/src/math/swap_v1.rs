@@ -1,6 +1,6 @@
 use std::{collections::VecDeque, ops::Neg};
 
-use snafu::{ResultExt, Snafu};
+use thiserror::Error;
 
 use crate::{
     constants::FEE_RATE_DENOMINATOR_VALUE,
@@ -191,8 +191,7 @@ fn calculate_amount_in_range(
                 liquidity,
                 true,
             )
-        }
-        .context(LiquiditySnafu)?;
+        }?;
         Ok(Some(result))
     } else {
         let result = if zero_for_one {
@@ -209,8 +208,8 @@ fn calculate_amount_in_range(
                 liquidity,
                 false,
             )
-        }
-        .context(LiquiditySnafu)?;
+        }?;
+
         Ok(Some(result))
     }
 }
@@ -316,8 +315,7 @@ pub fn compute_swap(
         // Calculate next price and swap step
         step.tick_next = next_tick.tick.clamp(tick::MIN_TICK, tick::MAX_TICK);
         step.initialized = next_tick.is_initialized();
-        step.sqrt_price_next_x64 =
-            tick::get_sqrt_price_at_tick(step.tick_next).context(TickSnafu)?;
+        step.sqrt_price_next_x64 = tick::get_sqrt_price_at_tick(step.tick_next)?;
 
         let target_price =
             calculate_target_price(zero_for_one, step.sqrt_price_next_x64, sqrt_price_limit_x64);
@@ -443,8 +441,7 @@ pub fn compute_swap_by_specified_sqrt_price(
         // Calculate prices and execute swap step
         step.tick_next = next_tick.tick.clamp(tick::MIN_TICK, tick::MAX_TICK);
         step.initialized = next_tick.is_initialized();
-        step.sqrt_price_next_x64 =
-            tick::get_sqrt_price_at_tick(step.tick_next).context(TickSnafu)?;
+        step.sqrt_price_next_x64 = tick::get_sqrt_price_at_tick(step.tick_next)?;
 
         let target_price =
             calculate_target_price(zero_for_one, step.sqrt_price_next_x64, sqrt_price);
@@ -582,12 +579,11 @@ fn update_state_from_swap(
         if step.initialized {
             let liquidity_net =
                 if zero_for_one { next_tick.liquidity_net.neg() } else { next_tick.liquidity_net };
-            state.liquidity =
-                liquidity::add_delta(state.liquidity, liquidity_net).context(LiquiditySnafu)?;
+            state.liquidity = liquidity::add_delta(state.liquidity, liquidity_net)?;
         }
         state.tick = if zero_for_one { step.tick_next - 1 } else { step.tick_next };
     } else if state.sqrt_price_x64 != step.sqrt_price_start_x64 {
-        state.tick = tick::get_tick_at_sqrt_price(state.sqrt_price_x64).context(TickSnafu)?;
+        state.tick = tick::get_tick_at_sqrt_price(state.sqrt_price_x64)?;
     }
 
     Ok(())
@@ -627,49 +623,48 @@ struct StepComputations {
     fee_amount: u64,
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum SwapError {
-    #[snafu(display("Liquidity error: {}", source))]
-    Liquidity { source: liquidity::LiquidityError },
+    #[error("Liquidity error: {0}")]
+    Liquidity(#[from] liquidity::LiquidityError),
 
-    #[snafu(display("Tick error: {}", source))]
-    Tick { source: tick::TickError },
+    #[error("Tick error: {0}")]
+    Tick(#[from] tick::TickError),
 
-    #[snafu(display("Tick state error"))]
+    #[error("Tick state error")]
     TickState,
 
-    #[snafu(display("Pool state error"))]
+    #[error("Pool state error")]
     PoolState,
 
-    #[snafu(display("Math overflow"))]
+    #[error("Math overflow")]
     MathOverflow,
 
-    #[snafu(display("Amount specified zero"))]
+    #[error("Amount specified zero")]
     AmountSpecifiedZero,
 
-    #[snafu(display("Sqrt price limit x64 too small"))]
+    #[error("Sqrt price limit x64 too small")]
     SqrtPriceLimitX64TooSmall,
 
-    #[snafu(display("Sqrt price limit x64 too large"))]
+    #[error("Sqrt price limit x64 too large")]
     SqrtPriceLimitX64TooLarge,
 
-    #[snafu(display("Tick array start tick index does not match"))]
+    #[error("Tick array start tick index does not match")]
     TickArrayStartTickIndexDoesNotMatch,
 
-    #[snafu(display("Tick array start tick index out of range limit"))]
+    #[error("Tick array start tick index out of range limit")]
     TickArrayStartTickIndexOutOfRangeLimit,
 
-    #[snafu(display("Loop count limit"))]
+    #[error("Loop count limit")]
     LoopCountLimit,
 
-    #[snafu(display("No tick array available"))]
+    #[error("No tick array available")]
     NoTickArrayAvailable,
 
-    #[snafu(display("No more tick arrays available"))]
+    #[error("No more tick arrays available")]
     NoMoreTickArraysAvailable,
 
-    #[snafu(display("Tick state not initialized"))]
+    #[error("Tick state not initialized")]
     TickStateNotInitialized,
 }
 

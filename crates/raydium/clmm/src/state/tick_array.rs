@@ -1,4 +1,4 @@
-use snafu::Snafu;
+use thiserror::Error;
 
 use crate::{
     constants::{TICK_ARRAY_SIZE, TICK_ARRAY_SIZE_USIZE},
@@ -80,10 +80,9 @@ impl TickState {
     pub fn is_initialized(&self) -> bool { self.liquidity_gross != 0 }
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum TickStateError {
-    #[snafu(display("Tick state not initialized"))]
+    #[error("Tick state not initialized")]
     TickStateNotInitialized,
 }
 

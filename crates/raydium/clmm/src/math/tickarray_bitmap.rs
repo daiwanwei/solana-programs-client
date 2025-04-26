@@ -1,5 +1,5 @@
 /// ! Helper functions to get most and least significant non-zero bits
-use snafu::Snafu;
+use thiserror::Error;
 
 use crate::{
     constants::{TICK_ARRAY_BITMAP_SIZE, TICK_ARRAY_SIZE},
@@ -201,10 +201,9 @@ pub fn get_bitmap_offset(tick_index: i32, tick_spacing: u16) -> Result<usize> {
     Ok(offset as usize)
 }
 
-#[derive(Debug, Snafu)]
-#[snafu(visibility(pub))]
+#[derive(Debug, Error)]
 pub enum TickArrayBitmapError {
-    #[snafu(display("Invalid tick index"))]
+    #[error("Invalid tick index")]
     InvalidTickIndex,
 }
 
