@@ -14,7 +14,7 @@ pub enum InstructionError {
     InvalidDiscriminator { expected: [u8; 8], actual: [u8; 8] },
 
     #[error("Failed to deserialize instruction: {source}")]
-    DeserializeAnchorInstruction { source: io::Error },
+    DeserializeInstruction { source: io::Error },
 }
 
 pub type Result<T> = std::result::Result<T, InstructionError>;

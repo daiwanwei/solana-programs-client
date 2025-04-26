@@ -1,31 +1,7 @@
-use anchor_trait::Discriminator;
 use borsh::BorshDeserialize;
 use solana_program_pack::Pack;
 
 use crate::account::error::{AccountError, Result};
-
-pub fn deserialize_anchor_account<T>(data: &[u8]) -> Result<T>
-where
-    T: BorshDeserialize + Discriminator,
-{
-    if data.len() < 8 {
-        return Err(AccountError::InvalidDiscriminatorLength { actual: data.len() });
-    }
-
-    let discriminator = data[0..8].try_into().map_err(|_| AccountError::ParseDiscriminator)?;
-
-    if discriminator != T::DISCRIMINATOR {
-        return Err(AccountError::InvalidDiscriminator {
-            expected: T::DISCRIMINATOR,
-            actual: discriminator,
-        });
-    }
-
-    let account = T::deserialize(&mut &data[8..])
-        .map_err(|e| AccountError::DeserializeAnchorAccount { source: e })?;
-
-    Ok(account)
-}
 
 pub fn deserialize_solana_account_by_pack<T>(data: &[u8]) -> Result<T>
 where

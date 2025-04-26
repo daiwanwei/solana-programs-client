@@ -1,27 +1,37 @@
-use anchor_trait::Discriminator;
 use borsh::BorshDeserialize;
 
-use crate::instruction::error::{InstructionError, Result};
+use crate::instruction::{
+    discriminator::validate_discriminator,
+    error::{InstructionError, Result},
+};
 
-pub fn deserialize_anchor_instruction<T>(data: &[u8]) -> Result<T>
-where
-    T: BorshDeserialize + Discriminator,
-{
+pub fn deserialize_instruction_discriminator(
+    data: &[u8],
+    discriminator: [u8; 8],
+) -> Result<[u8; 8]> {
     if data.len() < 8 {
         return Err(InstructionError::InvalidDiscriminatorLength { actual: data.len() });
     }
 
-    let discriminator = data[0..8].try_into().map_err(|_| InstructionError::ParseDiscriminator)?;
+    let ix_discriminator =
+        data[0..8].try_into().map_err(|_| InstructionError::ParseDiscriminator)?;
 
-    if discriminator != T::DISCRIMINATOR {
-        return Err(InstructionError::InvalidDiscriminator {
-            expected: T::DISCRIMINATOR,
-            actual: discriminator,
-        });
-    }
+    validate_discriminator(ix_discriminator, discriminator)?;
 
-    let account = T::deserialize(&mut &data[8..])
-        .map_err(|e| InstructionError::DeserializeAnchorInstruction { source: e })?;
+    Ok(discriminator)
+}
 
-    Ok(account)
+pub fn deserialize_instruction_args_with_discriminator<T>(
+    data: &[u8],
+    discriminator: [u8; 8],
+) -> Result<([u8; 8], T)>
+where
+    T: BorshDeserialize,
+{
+    let _ = deserialize_instruction_discriminator(data, discriminator)?;
+
+    let args = T::deserialize(&mut &data[8..])
+        .map_err(|e| InstructionError::DeserializeInstruction { source: e })?;
+
+    Ok((discriminator, args))
 }
