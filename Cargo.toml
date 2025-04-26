@@ -18,6 +18,7 @@ members = [
   "crates/core",
   "crates/deserialize",
   "crates/anchor-trait",
+  "crates/account-fetcher",
 
   "crates/raydium/clmm",
   "crates/raydium/clmm-client",
@@ -59,6 +60,10 @@ solana-sdk                   = "2"
 solana-client                = "2"
 solana-account-decoder       = "2"
 solana-program-pack          = "2"
+solana-clock                 = "2"
+solana-rpc-client            = "2"
+solana-rpc-client-api        = "2"
+solana-transaction-status    = "2"
 spl-token                    = "7"
 spl-token-2022               = "7"
 spl-associated-token-account = "6"
@@ -71,9 +76,10 @@ sha2         = "0.10"
 # testing
 proptest = "1"
 
-anchor-trait       = { path = "crates/anchor-trait" }
-solana-client-core = { path = "crates/core" }
-solana-deserialize = { path = "crates/deserialize" }
+anchor-trait           = { path = "crates/anchor-trait" }
+solana-client-core     = { path = "crates/core" }
+solana-deserialize     = { path = "crates/deserialize" }
+solana-account-fetcher = { path = "crates/account-fetcher" }
 
 orca-whirlpools        = { path = "crates/orca/whirlpools" }
 orca-whirlpools-client = { path = "crates/orca/whirlpools-client" }

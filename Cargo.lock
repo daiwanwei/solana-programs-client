@@ -3999,6 +3999,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "solana-account-fetcher"
+version = "0.0.1"
+dependencies = [
+ "anchor-trait",
+ "anyhow",
+ "borsh 1.5.5",
+ "solana-account",
+ "solana-account-decoder",
+ "solana-client",
+ "solana-client-core",
+ "solana-clock",
+ "solana-deserialize",
+ "solana-program",
+ "solana-program-pack",
+ "solana-rpc-client",
+ "solana-rpc-client-api",
+ "solana-sdk",
+ "solana-transaction-status",
+ "thiserror 2.0.12",
+]
+
+[[package]]
 name = "solana-account-info"
 version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6242,6 +6264,47 @@ dependencies = [
 ]
 
 [[package]]
+name = "solana-transaction-status"
+version = "2.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6ad8a7a6873bc7a8499184e544f6fdc2ac47cca911e73e431944788a16d4e51a"
+dependencies = [
+ "Inflector",
+ "base64 0.22.1",
+ "bincode",
+ "borsh 1.5.5",
+ "bs58",
+ "lazy_static",
+ "log",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "solana-account-decoder",
+ "solana-clock",
+ "solana-hash",
+ "solana-instruction",
+ "solana-loader-v2-interface",
+ "solana-message",
+ "solana-program",
+ "solana-pubkey",
+ "solana-reserved-account-keys",
+ "solana-reward-info",
+ "solana-sdk-ids",
+ "solana-signature",
+ "solana-system-interface",
+ "solana-transaction",
+ "solana-transaction-error",
+ "solana-transaction-status-client-types",
+ "spl-associated-token-account",
+ "spl-memo",
+ "spl-token",
+ "spl-token-2022 7.0.0",
+ "spl-token-group-interface",
+ "spl-token-metadata-interface",
+ "thiserror 2.0.12",
+]
+
+[[package]]
 name = "solana-transaction-status-client-types"
 version = "2.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7554,7 +7617,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]

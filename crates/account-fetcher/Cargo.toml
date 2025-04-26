@@ -1,0 +1,39 @@
+[package]
+name                   = "solana-account-fetcher"
+description            = "Solana Account Fetcher"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[features]
+
+[dependencies]
+borsh = { workspace = true }
+
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+
+solana-account-decoder    = { workspace = true }
+solana-client             = { workspace = true }
+solana-program            = { workspace = true }
+solana-rpc-client         = { workspace = true }
+solana-rpc-client-api     = { workspace = true }
+solana-sdk                = { workspace = true }
+solana-transaction-status = { workspace = true }
+solana-account            = { workspace = true }
+solana-clock              = { workspace = true }
+solana-program-pack       = { workspace = true }
+
+anchor-trait       = { workspace = true }
+solana-client-core = { workspace = true }
+solana-deserialize = { workspace = true }
+
+[lints]
+workspace = true
