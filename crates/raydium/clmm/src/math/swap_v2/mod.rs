@@ -127,6 +127,10 @@ pub fn compute_swap(
         let next_tick = next_tick_state.tick.clamp(tick::MIN_TICK, tick::MAX_TICK);
         let next_sqrt_price_x64 = tick::get_sqrt_price_at_tick(next_tick)?;
 
+        if next_sqrt_price_x64 == cache.sqrt_price_x64 {
+            return Err(SwapError::InvalidNextSqrtPriceX64);
+        }
+
         let target_price =
             calculate_target_price(zero_for_one, next_sqrt_price_x64, sqrt_price_limit_x64);
         // Execute swap step and update state
@@ -492,6 +496,9 @@ pub enum SwapError {
 
     #[error("Swap step error: {0}")]
     SwapStep(#[from] swap_step::SwapStepError),
+
+    #[error("Invalid next sqrt price x64")]
+    InvalidNextSqrtPriceX64,
 }
 
 pub type Result<T> = std::result::Result<T, SwapError>;
