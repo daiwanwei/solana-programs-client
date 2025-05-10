@@ -1,5 +1,6 @@
 use solana_sdk::pubkey::Pubkey;
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InitializeConfigParams {
     pub owner: Pubkey,
     pub fee_authority: Pubkey,
@@ -8,6 +9,7 @@ pub struct InitializeConfigParams {
     pub default_protocol_fee_rate: u16,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InitializeFeeTierParams {
     pub funder: Pubkey,
     pub whirlpool_config: Pubkey,
@@ -16,6 +18,7 @@ pub struct InitializeFeeTierParams {
     pub default_fee_rate: u16,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InitializeTickArraysParams {
     pub whirlpool: Pubkey,
     pub funder: Pubkey,
@@ -25,12 +28,14 @@ pub struct InitializeTickArraysParams {
     pub a_to_b: bool,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct InitializeTickArrayParams {
     pub whirlpool: Pubkey,
     pub start_tick_index: i32,
     pub funder: Pubkey,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InitializePoolParams {
     pub whirlpool_creator: Pubkey,
     pub whirlpool_config: Pubkey,
@@ -49,6 +54,7 @@ pub struct OpenPositionParams {
     pub tick_upper_index: i32,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct IncreaseLiquidityParams {
     pub nft_owner: Pubkey,
     pub whirlpool: Pubkey,
@@ -66,6 +72,7 @@ pub struct IncreaseLiquidityParams {
     pub token_max_b: u64,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct DecreaseLiquidityParams {
     pub nft_owner: Pubkey,
     pub whirlpool: Pubkey,
@@ -84,6 +91,7 @@ pub struct DecreaseLiquidityParams {
     pub amount_1_min: u64,
 }
 
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SwapParams {
     pub token_authority: Pubkey,
     pub whirlpool: Pubkey,
@@ -99,4 +107,14 @@ pub struct SwapParams {
     pub tick_array0: Pubkey,
     pub tick_array1: Pubkey,
     pub tick_array2: Pubkey,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct PreviewSwapParams {
+    pub whirlpool: orca_whirlpools::generated::accounts::Whirlpool,
+    pub tick_arrays: Vec<orca_whirlpools::generated::accounts::TickArray>,
+    pub slippage_tolerance: u16,
+    pub amount: u64,
+    pub is_base_input: bool,
+    pub a_to_b: bool,
 }

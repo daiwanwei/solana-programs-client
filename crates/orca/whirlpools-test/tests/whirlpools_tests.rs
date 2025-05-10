@@ -81,15 +81,15 @@ mod tests {
         let is_base_input = false;
         let specified_amount = 100;
 
-        let (amount_in, amount_out, threshold) =
-            whirlpools_tester.preview_swap(&svm, specified_amount, is_base_input, a_to_b)?;
+        let result =
+            whirlpools_tester.preview_swap(&svm, 0, specified_amount, is_base_input, a_to_b)?;
 
         let params = SwapParams {
             token_authority: user0.keypair.pubkey(),
             token_owner_account_a: user0.token_account_0,
             token_owner_account_b: user0.token_account_1,
             amount: specified_amount,
-            other_amount_threshold: threshold,
+            other_amount_threshold: result.threshold,
             sqrt_price_limit: 0,
             amount_specified_is_input: is_base_input,
             a_to_b,
@@ -111,13 +111,13 @@ mod tests {
         if a_to_b {
             let amount_in_value = token_account_0_before.amount - token_account_0_after.amount;
             let amount_out_value = token_account_1_after.amount - token_account_1_before.amount;
-            assert_eq!(amount_in, amount_in_value);
-            assert_eq!(amount_out, amount_out_value);
+            assert_eq!(result.amount_in, amount_in_value);
+            assert_eq!(result.amount_out, amount_out_value);
         } else {
             let amount_in_value = token_account_1_before.amount - token_account_1_after.amount;
             let amount_out_value = token_account_0_after.amount - token_account_0_before.amount;
-            assert_eq!(amount_in, amount_in_value);
-            assert_eq!(amount_out, amount_out_value);
+            assert_eq!(result.amount_in, amount_in_value);
+            assert_eq!(result.amount_out, amount_out_value);
         }
 
         Ok(())

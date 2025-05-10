@@ -2,17 +2,19 @@ use thiserror::Error;
 
 use crate::{
     quote::{swap_quote_by_input_token, swap_quote_by_output_token},
-    types::TickArrayFacade,
+    types::{PreviewSwapParams, PreviewSwapResult, TickArrayFacade},
 };
 
-pub fn preview_swap(
-    whirlpool: orca_whirlpools::generated::accounts::Whirlpool,
-    tick_arrays: Vec<orca_whirlpools::generated::accounts::TickArray>,
-    slippage_tolerance: u16,
-    amount: u64,
-    is_base_input: bool,
-    a_to_b: bool,
-) -> Result<(u64, u64, u64)> {
+pub fn preview_swap(params: PreviewSwapParams) -> Result<PreviewSwapResult> {
+    let PreviewSwapParams {
+        whirlpool,
+        tick_arrays,
+        amount,
+        is_base_input,
+        a_to_b,
+        slippage_tolerance,
+    } = params;
+
     let tick_arrays: Vec<TickArrayFacade> =
         tick_arrays.into_iter().map(|tick_array| tick_array.into()).collect();
 
@@ -26,7 +28,7 @@ pub fn preview_swap(
 
     let arrays = [tick_arrays[0], tick_arrays[1], tick_arrays[2]];
 
-    let (amount_in, amount_out, threshold) = if is_base_input {
+    let result = if is_base_input {
         let res = swap_quote_by_input_token(
             amount,
             specified_token_a,
@@ -38,7 +40,12 @@ pub fn preview_swap(
         )
         .unwrap();
 
-        (res.token_in, res.token_est_out, res.token_min_out)
+        PreviewSwapResult {
+            amount_in: res.token_in,
+            amount_out: res.token_est_out,
+            fee: res.trade_fee,
+            threshold: res.token_min_out,
+        }
     } else {
         let res = swap_quote_by_output_token(
             amount,
@@ -51,10 +58,15 @@ pub fn preview_swap(
         )
         .unwrap();
 
-        (res.token_est_in, res.token_out, res.token_max_in)
+        PreviewSwapResult {
+            amount_in: res.token_est_in,
+            amount_out: res.token_out,
+            fee: res.trade_fee,
+            threshold: res.token_max_in,
+        }
     };
 
-    Ok((amount_in, amount_out, threshold))
+    Ok(result)
 }
 
 #[derive(Error, Debug)]
