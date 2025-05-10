@@ -1,5 +1,6 @@
 mod fees;
 mod liquidity;
+mod params;
 mod pool;
 mod position;
 mod rewards;
@@ -8,8 +9,6 @@ mod tick;
 mod tick_array;
 mod token;
 mod u128;
-
-mod params;
 
 pub use fees::*;
 pub use liquidity::*;
