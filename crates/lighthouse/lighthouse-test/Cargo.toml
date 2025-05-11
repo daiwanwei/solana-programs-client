@@ -1,0 +1,48 @@
+[package]
+name                   = "lighthouse-test"
+description            = "Lighthouse Test"
+version.workspace      = true
+authors.workspace      = true
+homepage.workspace     = true
+readme.workspace       = true
+repository.workspace   = true
+license.workspace      = true
+edition.workspace      = true
+rust-version.workspace = true
+categories.workspace   = true
+keywords.workspace     = true
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name       = "lighthouse_test"
+
+[dependencies]
+borsh      = { workspace = true }
+base64     = { workspace = true }
+proptest   = { workspace = true }
+serde      = { workspace = true }
+serde_json = { workspace = true }
+
+solana-program               = { workspace = true }
+solana-program-pack          = { workspace = true }
+solana-sdk                   = { workspace = true }
+spl-token                    = { workspace = true }
+spl-token-2022               = { workspace = true }
+spl-associated-token-account = { workspace = true }
+litesvm                      = { workspace = true }
+
+# error handling
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+
+anchor-trait       = { workspace = true }
+solana-deserialize = { workspace = true }
+solana-client-core = { workspace = true }
+
+program-test-utils = { workspace = true }
+
+lighthouse        = { workspace = true, features = ["serde", "sdk"] }
+lighthouse-common = { workspace = true, features = ["serde"] }
+
+[lints]
+workspace = true
