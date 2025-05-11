@@ -1,0 +1,25 @@
+[package]
+name        = "lighthouse-client"
+version     = "0.1.0"
+edition     = "2021"
+description = "Lighthouse client library."
+license     = "MIT"
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+borsh = { workspace = true }
+
+solana-program               = { workspace = true }
+solana-sdk                   = { workspace = true }
+spl-associated-token-account = { workspace = true }
+spl-token                    = { workspace = true }
+spl-token-2022               = { workspace = true }
+solana-program-error         = { workspace = true }
+
+anyhow    = { workspace = true }
+thiserror = { workspace = true }
+
+lighthouse        = { workspace = true }
+lighthouse-common = { workspace = true }

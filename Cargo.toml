@@ -30,6 +30,7 @@ members = [
 
   "crates/lighthouse/lighthouse",
   "crates/lighthouse/lighthouse-common",
+  "crates/lighthouse/lighthouse-client",
   "crates/lighthouse/lighthouse-test",
 
   "crates/test-utils",
@@ -96,6 +97,7 @@ raydium-clmm-test   = { path = "crates/raydium/clmm-test" }
 
 lighthouse        = { path = "crates/lighthouse/lighthouse" }
 lighthouse-common = { path = "crates/lighthouse/lighthouse-common" }
+lighthouse-client = { path = "crates/lighthouse/lighthouse-client" }
 lighthouse-test   = { path = "crates/lighthouse/lighthouse-test" }
 
 program-test-utils = { path = "crates/test-utils" }

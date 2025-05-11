@@ -1,0 +1,7 @@
+[workspace]
+members = [
+  "lighthouse",
+  "lighthouse-test",
+  "lighthouse-common",
+  "lighthouse-client",
+]
