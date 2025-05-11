@@ -499,6 +499,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "assert_matches"
+version = "1.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b34d609dfbaf33d6889b2b7106d3ca345eacad44200913df5ba02bfd31d2ba9"
+
+[[package]]
 name = "async-channel"
 version = "1.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2233,6 +2239,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 
 [[package]]
+name = "leb128"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "884e2677b40cc8c339eaefcb701c32ef1fd2493d71118dc0ca4b6a736c93bd67"
+
+[[package]]
 name = "libc"
 version = "0.2.170"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2302,6 +2314,59 @@ dependencies = [
  "ark-ff",
  "num-bigint 0.4.6",
  "thiserror 1.0.69",
+]
+
+[[package]]
+name = "lighthouse"
+version = "2.0.0"
+dependencies = [
+ "assert_matches",
+ "base64 0.22.1",
+ "borsh 1.5.5",
+ "lighthouse-common",
+ "num-derive",
+ "num-traits",
+ "serde",
+ "serde_with",
+ "solana-program",
+ "solana-sdk",
+ "thiserror 2.0.12",
+]
+
+[[package]]
+name = "lighthouse-common"
+version = "2.0.0"
+dependencies = [
+ "borsh 1.5.5",
+ "leb128",
+ "serde",
+ "serde_with",
+]
+
+[[package]]
+name = "lighthouse-test"
+version = "0.0.1"
+dependencies = [
+ "anchor-trait",
+ "anyhow",
+ "base64 0.22.1",
+ "borsh 1.5.5",
+ "lighthouse",
+ "lighthouse-common",
+ "litesvm",
+ "program-test-utils",
+ "proptest",
+ "serde",
+ "serde_json",
+ "solana-client-core",
+ "solana-deserialize",
+ "solana-program",
+ "solana-program-pack",
+ "solana-sdk",
+ "spl-associated-token-account",
+ "spl-token",
+ "spl-token-2022 7.0.0",
+ "thiserror 2.0.12",
 ]
 
 [[package]]

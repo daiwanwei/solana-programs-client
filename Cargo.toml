@@ -28,6 +28,9 @@ members = [
   "crates/orca/whirlpools-client",
   "crates/orca/whirlpools-test",
 
+  "crates/lighthouse/lighthouse",
+  "crates/lighthouse/lighthouse-common",
+
   "crates/test-utils",
 ]
 
@@ -72,6 +75,7 @@ litesvm                      = "0.6"
 rust_decimal = "1"
 uint         = { package = "uint", git = "https://github.com/raydium-io/parity-common" }
 sha2         = "0.10"
+leb128       = "0.2.5"
 
 # testing
 proptest = "1"
@@ -88,6 +92,9 @@ orca-whirlpools-test   = { path = "crates/orca/whirlpools-test" }
 raydium-clmm        = { path = "crates/raydium/clmm" }
 raydium-clmm-client = { path = "crates/raydium/clmm-client" }
 raydium-clmm-test   = { path = "crates/raydium/clmm-test" }
+
+lighthouse        = { path = "crates/lighthouse/lighthouse" }
+lighthouse-common = { path = "crates/lighthouse/lighthouse-common" }
 
 program-test-utils = { path = "crates/test-utils" }
 

@@ -1,0 +1,35 @@
+[package]
+name         = "lighthouse"
+version      = "2.0.0"
+edition      = "2021"
+readme       = "README.md"
+license-file = "../../LICENSE"
+description  = "A rust client for Lighthouse, a transaction safeguard Solana program"
+repository   = "https://github.com/Jac0xb/lighthouse"
+license      = "MIT"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+
+[features]
+serde = ["dep:serde", "dep:serde_with"]
+cpi   = []
+sdk   = ["dep:solana-sdk"]
+
+default = []
+
+[dependencies]
+borsh          = { workspace = true }
+num-derive     = { workspace = true }
+num-traits     = { workspace = true }
+serde          = { workspace = true, features = ["derive"], optional = true }
+serde_with     = { workspace = true, optional = true }
+solana-program = { workspace = true }
+solana-sdk     = { workspace = true, optional = true }
+thiserror      = { workspace = true }
+base64         = { workspace = true }
+
+lighthouse-common = { workspace = true, features = ["serde"] }
+
+[dev-dependencies]
+assert_matches = "1.5.0"
